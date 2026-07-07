@@ -1,0 +1,332 @@
+// GradSeal LMS — Prisma schema (PostgreSQL)
+//
+// Design notes for future extension (no breaking changes required):
+// - Instructors: add an `Instructor` model of its own (mirroring Admin/Student)
+//   with an `instructorId` FK on Course, if course ownership ever needs to move
+//   off Admin.
+// - Quizzes / Assignments: attach via `moduleId` or `courseId` FK, plus
+//   Question / Answer / Submission models mirroring the LessonProgress pattern.
+// - Coupons: standalone `Coupon` model (code, discount type, validity window),
+//   linked to Order via an optional `couponId` FK.
+// - Reviews: `Review` model keyed by `@@unique([studentId, courseId])`, same
+//   shape as Enrollment.
+// - Wishlist: simple join table `@@unique([studentId, courseId])`.
+// - Announcements: `courseId` + message + timestamps.
+// - Discussion forums: `Thread` / `Post` models keyed by `courseId` or `lessonId`.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum HighestQualification {
+  HIGH_SCHOOL
+  DIPLOMA
+  BACHELORS
+  MASTERS
+  DOCTORATE
+  OTHER
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+//
+// Admins and Students are deliberately separate tables (not one User table
+// with a role flag): they have almost no overlapping data, are authenticated
+// and managed through completely different flows, and keeping them apart
+// means the Student table can grow (progress, purchases, certificates)
+// without ever touching the Admin table.
+// ---------------------------------------------------------------------------
+
+model Admin {
+  id       String  @id @default(cuid())
+  fullName String  @map("full_name")
+  email    String  @unique
+  phone    String?
+  password String
+
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Courses this admin has uploaded/published.
+  courses Course[]
+
+  @@map("admins")
+}
+
+model Student {
+  id           String  @id @default(cuid())
+  firstName    String  @map("first_name")
+  lastName     String  @map("last_name")
+  email        String  @unique
+  phone        String
+  password     String
+  profileImage String? @map("profile_image")
+
+  dateOfBirth DateTime @map("date_of_birth")
+  gender      Gender
+
+  // Address
+  country String
+  state   String
+  city    String
+  pincode String
+  address String?
+
+  // Education
+  highestQualification HighestQualification @map("highest_qualification")
+  collegeOrUniversity  String?              @map("college_or_university")
+  currentOccupation    String?              @map("current_occupation")
+  fieldOfStudy         String?              @map("field_of_study")
+
+  isVerified Boolean @default(false) @map("is_verified")
+  isActive   Boolean @default(true) @map("is_active")
+
+  // Email OTP verification
+  emailOtp      String?   @map("email_otp")
+  otpExpiresAt  DateTime? @map("otp_expires_at")
+  otpAttempts   Int       @default(0) @map("otp_attempts")
+  lastOtpSentAt DateTime? @map("last_otp_sent_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  enrollments      Enrollment[]
+  orders           Order[]
+  certificates     Certificate[]
+  lessonProgresses LessonProgress[]
+
+  @@index([isVerified])
+  @@map("students")
+}
+
+// ---------------------------------------------------------------------------
+// Catalog
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  courses Course[]
+
+  @@map("categories")
+}
+
+model Course {
+  id String @id @default(cuid())
+
+  title            String
+  slug             String @unique
+  shortDescription String @map("short_description")
+  description      String
+
+  thumbnail    String
+  previewVideo String? @map("preview_video")
+
+  price           Decimal  @db.Decimal(10, 2)
+  discountedPrice Decimal? @map("discounted_price") @db.Decimal(10, 2)
+
+  duration String
+  language String
+
+  level CourseLevel
+
+  totalLessons Int @map("total_lessons")
+  totalHours   Int @map("total_hours")
+
+  isPublished Boolean @default(false) @map("is_published")
+  isFeatured  Boolean @default(false) @map("is_featured")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  // The admin who uploaded/owns this course.
+  uploadedById String @map("uploaded_by_id")
+  uploadedBy   Admin  @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  modules      Module[]
+  enrollments  Enrollment[]
+  certificates Certificate[]
+  orderItems   OrderItem[]
+
+  @@index([categoryId])
+  @@index([uploadedById])
+  @@index([isPublished, isFeatured])
+  @@map("courses")
+}
+
+model Module {
+  id       String @id @default(cuid())
+  title    String
+  position Int
+
+  courseId String @map("course_id")
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  lessons Lesson[]
+
+  @@index([courseId, position])
+  @@map("modules")
+}
+
+model Lesson {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+
+  videoUrl String @map("video_url")
+  duration Int
+
+  position Int
+
+  isFree Boolean @default(false) @map("is_free")
+
+  moduleId String @map("module_id")
+  module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  progresses LessonProgress[]
+
+  @@index([moduleId, position])
+  @@map("lessons")
+}
+
+// ---------------------------------------------------------------------------
+// Commerce
+// ---------------------------------------------------------------------------
+
+model Order {
+  id          String @id @default(cuid())
+  orderNumber String @unique @map("order_number")
+
+  studentId String  @map("student_id")
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  totalAmount Decimal @map("total_amount") @db.Decimal(10, 2)
+
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  paymentMethod String        @map("payment_method")
+  transactionId String?       @map("transaction_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items OrderItem[]
+
+  @@index([studentId])
+  @@index([paymentStatus])
+  @@map("orders")
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  orderId String @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  courseId String @map("course_id")
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  price Decimal @db.Decimal(10, 2)
+
+  @@index([orderId])
+  @@index([courseId])
+  @@map("order_items")
+}
+
+// ---------------------------------------------------------------------------
+// Learning
+// ---------------------------------------------------------------------------
+
+model Enrollment {
+  id String @id @default(cuid())
+
+  studentId String @map("student_id")
+  courseId  String @map("course_id")
+
+  progress Float @default(0)
+
+  completed   Boolean   @default(false)
+  completedAt DateTime? @map("completed_at")
+  enrolledAt  DateTime  @default(now()) @map("enrolled_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([courseId])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id String @id @default(cuid())
+
+  lessonId  String @map("lesson_id")
+  studentId String @map("student_id")
+
+  watched   Boolean   @default(false)
+  watchedAt DateTime? @map("watched_at")
+
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, studentId])
+  @@index([studentId])
+  @@map("lesson_progresses")
+}
+
+model Certificate {
+  id                String @id @default(cuid())
+  certificateNumber String @unique @map("certificate_number")
+
+  studentId String @map("student_id")
+  courseId  String @map("course_id")
+
+  certificateUrl String   @map("certificate_url")
+  issuedAt       DateTime @default(now()) @map("issued_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([courseId])
+  @@map("certificates")
+}
