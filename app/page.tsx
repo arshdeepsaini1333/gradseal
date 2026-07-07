@@ -1,4 +1,4 @@
-import Navbar from "@/components/Navbar";
+import AppNavbar from "@/components/navbar/AppNavbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import Stats from "@/components/Stats";
@@ -11,7 +11,7 @@ import CTA from "@/components/CTA";
 export default function HomePage() {
   return (
     <>
-      <Navbar />
+      <AppNavbar />
       <main className="flex-1">
         <Hero />
         <Stats />

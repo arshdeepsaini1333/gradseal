@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -b \"student_session=2174b27a40fcbb4dd4a796193197621b44087dac6bffecd3d9a546c7b90ec85d\" http://localhost:3000/student/dashboard -o /tmp_dashboard.html -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(wc -l /tmp_dashboard.html)"
+    ]
+  }
+}

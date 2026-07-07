@@ -2,14 +2,20 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { resendOtp } from "@/actions/auth";
 import { OTP_RESEND_COOLDOWN_SECONDS } from "@/lib/auth/otp-constants";
+
+interface ResendOtpState {
+  error?: string;
+  message?: string;
+  cooldownSeconds?: number;
+}
 
 interface ResendOtpButtonProps {
   email: string;
+  action: (email: string) => Promise<ResendOtpState | undefined>;
 }
 
-export default function ResendOtpButton({ email }: ResendOtpButtonProps) {
+export default function ResendOtpButton({ email, action }: ResendOtpButtonProps) {
   const [secondsLeft, setSecondsLeft] = useState(OTP_RESEND_COOLDOWN_SECONDS);
   const [isPending, startTransition] = useTransition();
 
@@ -19,11 +25,11 @@ export default function ResendOtpButton({ email }: ResendOtpButtonProps) {
       setSecondsLeft((s) => Math.max(0, s - 1));
     }, 1000);
     return () => clearInterval(timer);
-  }, [secondsLeft > 0]);
+  }, [secondsLeft]);
 
   function handleResend() {
     startTransition(async () => {
-      const result = await resendOtp(email);
+      const result = await action(email);
       if (result?.error) {
         toast.error(result.error);
         if (result.cooldownSeconds) setSecondsLeft(result.cooldownSeconds);

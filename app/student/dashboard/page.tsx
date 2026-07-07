@@ -1,14 +1,24 @@
 import type { Metadata } from "next";
-import ComingSoon from "@/components/ComingSoon";
+import { redirect } from "next/navigation";
+import { getStudentSession } from "@/lib/auth/session";
+import WelcomeSection from "@/components/dashboard/WelcomeSection";
+import StatsGrid from "@/components/dashboard/StatsGrid";
+import ContinueLearningSection from "@/components/dashboard/ContinueLearningSection";
+import { dashboardStats, continueLearningCourses } from "@/lib/mock-dashboard-data";
 
-export const metadata: Metadata = { title: "Student Dashboard – GradSeal" };
+export const metadata: Metadata = { title: "Dashboard – GradSeal" };
 
-export default function StudentDashboardPage() {
+export default async function StudentDashboardPage() {
+  const student = await getStudentSession();
+  if (!student) {
+    redirect("/student/login");
+  }
+
   return (
-    <ComingSoon
-      title="Student Dashboard"
-      description="Track your course progress, download certificates, and manage your learning journey — all in one place. Dashboard is coming soon."
-      showAuth
-    />
+    <div className="space-y-8">
+      <WelcomeSection firstName={student.firstName} profileImage={student.profileImage} />
+      <StatsGrid stats={dashboardStats} />
+      <ContinueLearningSection courses={continueLearningCourses} />
+    </div>
   );
 }

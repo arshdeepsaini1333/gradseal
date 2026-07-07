@@ -193,7 +193,7 @@ export default function StudentSignupForm() {
               autoComplete="given-name"
               value={values.firstName}
               onChange={(e) => setField("firstName", e.target.value)}
-              error={errors.firstName}
+              error={displayErrors.firstName}
             />
             <Input
               label="Last Name"
@@ -203,7 +203,7 @@ export default function StudentSignupForm() {
               autoComplete="family-name"
               value={values.lastName}
               onChange={(e) => setField("lastName", e.target.value)}
-              error={errors.lastName}
+              error={displayErrors.lastName}
             />
             <Input
               label="Email Address"
@@ -214,7 +214,7 @@ export default function StudentSignupForm() {
               autoComplete="email"
               value={values.email}
               onChange={(e) => setField("email", e.target.value)}
-              error={errors.email}
+              error={displayErrors.email}
             />
             <Input
               label="Phone Number"
@@ -225,7 +225,7 @@ export default function StudentSignupForm() {
               autoComplete="tel"
               value={values.phone}
               onChange={(e) => setField("phone", e.target.value)}
-              error={errors.phone}
+              error={displayErrors.phone}
             />
             <Input
               label="Date of Birth"
@@ -237,7 +237,7 @@ export default function StudentSignupForm() {
               max={new Date().toISOString().split("T")[0]}
               value={values.dateOfBirth}
               onChange={(e) => setField("dateOfBirth", e.target.value)}
-              error={errors.dateOfBirth}
+              error={displayErrors.dateOfBirth}
             />
             <Select
               label="Gender"
@@ -247,7 +247,7 @@ export default function StudentSignupForm() {
               options={GENDER_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
               value={values.gender}
               onChange={(e) => setField("gender", e.target.value)}
-              error={errors.gender}
+              error={displayErrors.gender}
             />
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-[#0F172A]">
@@ -287,7 +287,7 @@ export default function StudentSignupForm() {
               autoComplete="country-name"
               value={values.country}
               onChange={(e) => setField("country", e.target.value)}
-              error={errors.country}
+              error={displayErrors.country}
             />
             <Input
               label="State"
@@ -297,7 +297,7 @@ export default function StudentSignupForm() {
               autoComplete="address-level1"
               value={values.state}
               onChange={(e) => setField("state", e.target.value)}
-              error={errors.state}
+              error={displayErrors.state}
             />
             <Input
               label="City"
@@ -307,7 +307,7 @@ export default function StudentSignupForm() {
               autoComplete="address-level2"
               value={values.city}
               onChange={(e) => setField("city", e.target.value)}
-              error={errors.city}
+              error={displayErrors.city}
             />
             <Input
               label="Pincode"
@@ -317,7 +317,7 @@ export default function StudentSignupForm() {
               autoComplete="postal-code"
               value={values.pincode}
               onChange={(e) => setField("pincode", e.target.value)}
-              error={errors.pincode}
+              error={displayErrors.pincode}
             />
             <div className="sm:col-span-2">
               <Textarea
@@ -327,7 +327,7 @@ export default function StudentSignupForm() {
                 placeholder="House / street / locality"
                 value={values.address}
                 onChange={(e) => setField("address", e.target.value)}
-                error={errors.address}
+                error={displayErrors.address}
               />
             </div>
           </SectionCard>
@@ -348,7 +348,7 @@ export default function StudentSignupForm() {
               options={QUALIFICATION_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
               value={values.highestQualification}
               onChange={(e) => setField("highestQualification", e.target.value)}
-              error={errors.highestQualification}
+              error={displayErrors.highestQualification}
             />
             <Input
               label="College / University"
@@ -357,7 +357,7 @@ export default function StudentSignupForm() {
               autoComplete="organization"
               value={values.collegeOrUniversity}
               onChange={(e) => setField("collegeOrUniversity", e.target.value)}
-              error={errors.collegeOrUniversity}
+              error={displayErrors.collegeOrUniversity}
             />
             <Input
               label="Current Occupation"
@@ -365,7 +365,7 @@ export default function StudentSignupForm() {
               icon={Briefcase}
               value={values.currentOccupation}
               onChange={(e) => setField("currentOccupation", e.target.value)}
-              error={errors.currentOccupation}
+              error={displayErrors.currentOccupation}
             />
             <Input
               label="Field of Study"
@@ -373,7 +373,7 @@ export default function StudentSignupForm() {
               icon={BookOpen}
               value={values.fieldOfStudy}
               onChange={(e) => setField("fieldOfStudy", e.target.value)}
-              error={errors.fieldOfStudy}
+              error={displayErrors.fieldOfStudy}
             />
           </SectionCard>
         </div>
@@ -392,7 +392,7 @@ export default function StudentSignupForm() {
               showStrength
               value={values.password}
               onChange={(v) => setField("password", v)}
-              error={errors.password}
+              error={displayErrors.password}
             />
             <PasswordField
               label="Confirm Password"
@@ -400,7 +400,7 @@ export default function StudentSignupForm() {
               required
               value={values.confirmPassword}
               onChange={(v) => setField("confirmPassword", v)}
-              error={errors.confirmPassword}
+              error={displayErrors.confirmPassword}
             />
           </SectionCard>
         </div>

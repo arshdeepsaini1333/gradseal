@@ -7,7 +7,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
-import { hashPassword } from "@/lib/auth/password";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import {
   generateOtp,
   hashOtp,
@@ -17,11 +17,85 @@ import {
   OTP_RESEND_COOLDOWN_SECONDS,
   MAX_OTP_VERIFY_ATTEMPTS,
 } from "@/lib/auth/otp";
+import { createStudentSession, destroyStudentSession } from "@/lib/auth/session";
 import { sendEmail } from "@/lib/email/send-email";
-import { otpEmailTemplate } from "@/lib/email/templates/otp-email";
+import { otpEmailTemplate, loginOtpEmailTemplate } from "@/lib/email/templates/otp-email";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { studentSignupSchema } from "@/lib/validations/student-signup";
+import { studentLoginSchema } from "@/lib/validations/student-login";
 import type { Gender, HighestQualification } from "@/generated/prisma/enums";
+
+// ---------------------------------------------------------------------------
+// Shared OTP helpers (used by registration, login-2FA, and resend flows)
+// ---------------------------------------------------------------------------
+
+const otpCodeSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, { error: "Enter the 6-digit code" });
+
+async function issueOtp(studentId: string): Promise<string> {
+  const otp = generateOtp();
+  const hashedOtp = await hashOtp(otp);
+  await prisma.student.update({
+    where: { id: studentId },
+    data: {
+      emailOtp: hashedOtp,
+      otpExpiresAt: otpExpiryDate(),
+      otpAttempts: 0,
+      lastOtpSentAt: new Date(),
+    },
+  });
+  return otp;
+}
+
+function checkResendCooldown(
+  lastOtpSentAt: Date | null
+): { ok: true } | { ok: false; error: string; cooldownSeconds: number } {
+  if (!lastOtpSentAt) return { ok: true };
+
+  const secondsSinceLastSend = (Date.now() - lastOtpSentAt.getTime()) / 1000;
+  if (secondsSinceLastSend >= OTP_RESEND_COOLDOWN_SECONDS) return { ok: true };
+
+  return {
+    ok: false,
+    error: "Please wait before requesting another code.",
+    cooldownSeconds: Math.ceil(OTP_RESEND_COOLDOWN_SECONDS - secondsSinceLastSend),
+  };
+}
+
+async function checkOtp(
+  student: { id: string; emailOtp: string | null; otpExpiresAt: Date | null; otpAttempts: number },
+  otp: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!student.emailOtp || !student.otpExpiresAt) {
+    return { ok: false, error: "No verification code found. Please request a new one." };
+  }
+  if (student.otpExpiresAt.getTime() < Date.now()) {
+    return { ok: false, error: "This code has expired. Please request a new one." };
+  }
+  if (student.otpAttempts >= MAX_OTP_VERIFY_ATTEMPTS) {
+    return { ok: false, error: "Too many incorrect attempts. Please request a new code." };
+  }
+
+  const isValid = await verifyOtpHash(otp, student.emailOtp);
+  if (!isValid) {
+    await prisma.student.update({
+      where: { id: student.id },
+      data: { otpAttempts: { increment: 1 } },
+    });
+    const attemptsLeft = MAX_OTP_VERIFY_ATTEMPTS - student.otpAttempts - 1;
+    return {
+      ok: false,
+      error:
+        attemptsLeft > 0
+          ? `Incorrect code. ${attemptsLeft} attempt(s) remaining.`
+          : "Too many incorrect attempts. Please request a new code.",
+    };
+  }
+
+  return { ok: true };
+}
 
 // ---------------------------------------------------------------------------
 // Registration
@@ -167,11 +241,6 @@ export async function registerStudent(
 
 export type OtpFormState = { error?: string } | undefined;
 
-const otpCodeSchema = z
-  .string()
-  .trim()
-  .regex(/^\d{6}$/, { error: "Enter the 6-digit code" });
-
 export async function verifyOtp(
   email: string,
   _prevState: OtpFormState,
@@ -198,31 +267,9 @@ export async function verifyOtp(
     redirect("/student/login?verified=1");
   }
 
-  if (!student.emailOtp || !student.otpExpiresAt) {
-    return { error: "No verification code found. Please request a new one." };
-  }
-
-  if (student.otpExpiresAt.getTime() < Date.now()) {
-    return { error: "This code has expired. Please request a new one." };
-  }
-
-  if (student.otpAttempts >= MAX_OTP_VERIFY_ATTEMPTS) {
-    return { error: "Too many incorrect attempts. Please request a new code." };
-  }
-
-  const isValid = await verifyOtpHash(otp, student.emailOtp);
-  if (!isValid) {
-    await prisma.student.update({
-      where: { id: student.id },
-      data: { otpAttempts: { increment: 1 } },
-    });
-    const attemptsLeft = MAX_OTP_VERIFY_ATTEMPTS - student.otpAttempts - 1;
-    return {
-      error:
-        attemptsLeft > 0
-          ? `Incorrect code. ${attemptsLeft} attempt(s) remaining.`
-          : "Too many incorrect attempts. Please request a new code.",
-    };
+  const result = await checkOtp(student, otp);
+  if (!result.ok) {
+    return { error: result.error };
   }
 
   await prisma.student.update({
@@ -265,32 +312,12 @@ export async function resendOtp(email: string): Promise<ResendOtpState> {
     return { error: "This account is already verified." };
   }
 
-  if (student.lastOtpSentAt) {
-    const secondsSinceLastSend =
-      (Date.now() - student.lastOtpSentAt.getTime()) / 1000;
-    if (secondsSinceLastSend < OTP_RESEND_COOLDOWN_SECONDS) {
-      return {
-        error: "Please wait before requesting another code.",
-        cooldownSeconds: Math.ceil(
-          OTP_RESEND_COOLDOWN_SECONDS - secondsSinceLastSend
-        ),
-      };
-    }
+  const cooldown = checkResendCooldown(student.lastOtpSentAt);
+  if (!cooldown.ok) {
+    return { error: cooldown.error, cooldownSeconds: cooldown.cooldownSeconds };
   }
 
-  const otp = generateOtp();
-  const hashedOtp = await hashOtp(otp);
-
-  await prisma.student.update({
-    where: { id: student.id },
-    data: {
-      emailOtp: hashedOtp,
-      otpExpiresAt: otpExpiryDate(),
-      otpAttempts: 0,
-      lastOtpSentAt: new Date(),
-    },
-  });
-
+  const otp = await issueOtp(student.id);
   const { subject, html } = otpEmailTemplate({
     firstName: student.firstName,
     otp,
@@ -299,4 +326,151 @@ export async function resendOtp(email: string): Promise<ResendOtpState> {
   await sendEmail({ to: student.email, subject, html });
 
   return { message: "A new verification code has been sent to your email." };
+}
+
+// ---------------------------------------------------------------------------
+// Login (password + OTP two-factor)
+// ---------------------------------------------------------------------------
+
+export type LoginFormState = { error?: string } | undefined;
+
+const GENERIC_LOGIN_ERROR = "Invalid email or password.";
+
+export async function loginStudent(
+  _prevState: LoginFormState,
+  formData: FormData
+): Promise<LoginFormState> {
+  const ip = await getClientIp();
+  const limit = rateLimit(`login:${ip}`, 10, 15 * 60 * 1000);
+  if (!limit.success) {
+    return {
+      error: `Too many login attempts. Please try again in ${Math.ceil(
+        limit.retryAfterSeconds / 60
+      )} minute(s).`,
+    };
+  }
+
+  const validated = studentLoginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!validated.success) {
+    return { error: GENERIC_LOGIN_ERROR };
+  }
+  const { email, password } = validated.data;
+
+  const student = await prisma.student.findUnique({ where: { email } });
+  if (!student) {
+    return { error: GENERIC_LOGIN_ERROR };
+  }
+
+  const passwordMatches = await verifyPassword(password, student.password);
+  if (!passwordMatches) {
+    return { error: GENERIC_LOGIN_ERROR };
+  }
+
+  if (!student.isActive) {
+    return { error: "Your account has been deactivated. Please contact support." };
+  }
+
+  if (!student.isVerified) {
+    const cooldown = checkResendCooldown(student.lastOtpSentAt);
+    if (cooldown.ok) {
+      const otp = await issueOtp(student.id);
+      const { subject, html } = otpEmailTemplate({
+        firstName: student.firstName,
+        otp,
+        expiryMinutes: OTP_EXPIRY_MINUTES,
+      });
+      await sendEmail({ to: student.email, subject, html });
+    }
+    redirect(`/student/verify-otp?email=${encodeURIComponent(student.email)}`);
+  }
+
+  const otp = await issueOtp(student.id);
+  const { subject, html } = loginOtpEmailTemplate({
+    firstName: student.firstName,
+    otp,
+    expiryMinutes: OTP_EXPIRY_MINUTES,
+  });
+  await sendEmail({ to: student.email, subject, html });
+
+  redirect(`/student/verify-login-otp?email=${encodeURIComponent(student.email)}`);
+}
+
+export async function verifyLoginOtp(
+  email: string,
+  _prevState: OtpFormState,
+  formData: FormData
+): Promise<OtpFormState> {
+  const ip = await getClientIp();
+  const limit = rateLimit(`verify-login-otp:${ip}`, 15, 15 * 60 * 1000);
+  if (!limit.success) {
+    return { error: "Too many attempts. Please try again later." };
+  }
+
+  const parsed = otpCodeSchema.safeParse(formData.get("otp"));
+  if (!parsed.success) {
+    return { error: "Enter the 6-digit code" };
+  }
+  const otp = parsed.data;
+
+  const student = await prisma.student.findUnique({ where: { email } });
+  if (!student || !student.isActive) {
+    return { error: "Account not found. Please log in again." };
+  }
+
+  if (!student.isVerified) {
+    return { error: "Please verify your email before signing in." };
+  }
+
+  const result = await checkOtp(student, otp);
+  if (!result.ok) {
+    return { error: result.error };
+  }
+
+  await prisma.student.update({
+    where: { id: student.id },
+    data: { emailOtp: null, otpExpiresAt: null, otpAttempts: 0 },
+  });
+
+  await createStudentSession(student.id);
+  redirect("/student/dashboard");
+}
+
+export async function resendLoginOtp(email: string): Promise<ResendOtpState> {
+  const ip = await getClientIp();
+  const limit = rateLimit(`resend-login-otp:${ip}:${email}`, 5, 15 * 60 * 1000);
+  if (!limit.success) {
+    return {
+      error: `Too many resend requests. Try again in ${Math.ceil(
+        limit.retryAfterSeconds / 60
+      )} minute(s).`,
+    };
+  }
+
+  const student = await prisma.student.findUnique({ where: { email } });
+  if (!student || !student.isActive || !student.isVerified) {
+    return { error: "Account not found. Please log in again." };
+  }
+
+  const cooldown = checkResendCooldown(student.lastOtpSentAt);
+  if (!cooldown.ok) {
+    return { error: cooldown.error, cooldownSeconds: cooldown.cooldownSeconds };
+  }
+
+  const otp = await issueOtp(student.id);
+  const { subject, html } = loginOtpEmailTemplate({
+    firstName: student.firstName,
+    otp,
+    expiryMinutes: OTP_EXPIRY_MINUTES,
+  });
+  await sendEmail({ to: student.email, subject, html });
+
+  return { message: "A new verification code has been sent to your email." };
+}
+
+export async function logoutStudent(): Promise<void> {
+  await destroyStudentSession();
+  redirect("/student/login");
 }

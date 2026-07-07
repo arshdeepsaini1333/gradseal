@@ -6,15 +6,31 @@ import { ShieldCheck } from "lucide-react";
 import Button from "@/components/ui/Button";
 import OtpInput from "@/components/auth/OtpInput";
 import ResendOtpButton from "@/components/auth/ResendOtpButton";
-import { verifyOtp } from "@/actions/auth";
+import type { OtpFormState, ResendOtpState } from "@/actions/auth";
 
 interface VerifyOtpFormProps {
   email: string;
+  heading: string;
+  description: string;
+  submitLabel: string;
+  verifyAction: (
+    email: string,
+    prevState: OtpFormState,
+    formData: FormData
+  ) => Promise<OtpFormState>;
+  resendAction: (email: string) => Promise<ResendOtpState>;
 }
 
-export default function VerifyOtpForm({ email }: VerifyOtpFormProps) {
-  const verifyOtpForEmail = verifyOtp.bind(null, email);
-  const [state, formAction, isPending] = useActionState(verifyOtpForEmail, undefined);
+export default function VerifyOtpForm({
+  email,
+  heading,
+  description,
+  submitLabel,
+  verifyAction,
+  resendAction,
+}: VerifyOtpFormProps) {
+  const verifyForEmail = verifyAction.bind(null, email);
+  const [state, formAction, isPending] = useActionState(verifyForEmail, undefined);
 
   return (
     <div className="mx-auto w-full max-w-md">
@@ -22,22 +38,21 @@ export default function VerifyOtpForm({ email }: VerifyOtpFormProps) {
         <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#60A5FA] text-white shadow-lg shadow-blue-500/30">
           <ShieldCheck className="h-7 w-7" aria-hidden="true" />
         </div>
-        <h1 className="text-2xl font-extrabold text-[#0F172A]">Verify your email</h1>
+        <h1 className="text-2xl font-extrabold text-[#0F172A]">{heading}</h1>
         <p className="mt-2 text-sm text-[#64748B]">
-          We sent a 6-digit code to <span className="font-semibold text-[#0F172A]">{email}</span>.
-          Enter it below to activate your account.
+          {description} <span className="font-semibold text-[#0F172A]">{email}</span>.
         </p>
 
         <form action={formAction} className="mt-8 flex flex-col items-center gap-6">
           <OtpInput name="otp" error={state?.error} disabled={isPending} />
 
           <Button type="submit" loading={isPending} disabled={isPending} className="w-full">
-            Verify Account
+            {submitLabel}
           </Button>
 
           <div className="flex items-center gap-1 text-sm text-[#64748B]">
             Didn&apos;t receive the code?
-            <ResendOtpButton email={email} />
+            <ResendOtpButton email={email} action={resendAction} />
           </div>
         </form>
       </div>
