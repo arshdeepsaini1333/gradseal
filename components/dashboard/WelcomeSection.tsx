@@ -15,7 +15,7 @@ export default function WelcomeSection({ firstName, profileImage }: WelcomeSecti
           {getGreeting()}, {firstName} 👋
         </h1>
         <p className="mt-1.5 text-[#64748B] text-sm sm:text-base">
-          Continue your learning journey.
+          Discover a course to grow your career.
         </p>
       </div>
 

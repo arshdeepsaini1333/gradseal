@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   BookOpen,
-  PlayCircle,
   Award,
   ClipboardList,
   FileCheck2,
@@ -21,18 +20,17 @@ import type { SidebarNavItem } from "@/types/dashboard";
 
 const sidebarLinks: SidebarNavItem[] = [
   { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
-  { label: "My Learning", href: "/student/dashboard/my-learning", icon: BookOpen },
-  { label: "Continue Learning", href: "/student/dashboard/continue-learning", icon: PlayCircle },
-  { label: "My Certificates", href: "/student/dashboard/certificates", icon: Award },
-  { label: "Tests & Assessments", href: "/student/dashboard/tests", icon: ClipboardList },
-  { label: "Assignments", href: "/student/dashboard/assignments", icon: FileCheck2 },
-  { label: "Wishlist", href: "/student/dashboard/wishlist", icon: Heart },
-  { label: "Cart", href: "/student/dashboard/cart", icon: ShoppingCart },
-  { label: "Orders", href: "/student/dashboard/orders", icon: Receipt },
-  { label: "Notifications", href: "/student/dashboard/notifications", icon: Bell },
-  { label: "Profile", href: "/student/dashboard/profile", icon: User },
-  { label: "Account Settings", href: "/student/dashboard/settings", icon: Settings },
-  { label: "Support", href: "/student/dashboard/support", icon: LifeBuoy },
+  { label: "My Learning", href: "/student/my-learning", icon: BookOpen },
+  { label: "My Certificates", href: "/student/certificates", icon: Award },
+  { label: "Tests & Assessments", href: "/student/tests", icon: ClipboardList },
+  { label: "Assignments", href: "/student/assignments", icon: FileCheck2 },
+  { label: "Wishlist", href: "/student/wishlist", icon: Heart },
+  { label: "Cart", href: "/student/cart", icon: ShoppingCart },
+  { label: "Orders", href: "/student/orders", icon: Receipt },
+  { label: "Notifications", href: "/student/notifications", icon: Bell },
+  { label: "Profile", href: "/student/profile", icon: User },
+  { label: "Account Settings", href: "/student/settings", icon: Settings },
+  { label: "Support", href: "/student/support", icon: LifeBuoy },
 ];
 
 export default function DashboardSidebar() {

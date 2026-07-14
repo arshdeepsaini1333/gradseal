@@ -23,14 +23,14 @@ interface ProfileDropdownProps {
 
 const menuLinks = [
   { label: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
-  { label: "My Learning", href: "/student/dashboard/my-learning", icon: BookOpen },
-  { label: "My Certificates", href: "/student/dashboard/certificates", icon: Award },
-  { label: "My Wishlist", href: "/student/dashboard/wishlist", icon: Heart },
-  { label: "Purchase History", href: "/student/dashboard/orders", icon: Receipt },
-  { label: "Quiz/Test Results", href: "/student/dashboard/tests", icon: ClipboardList },
-  { label: "Assignments", href: "/student/dashboard/assignments", icon: FileCheck2 },
-  { label: "Settings", href: "/student/dashboard/settings", icon: Settings },
-  { label: "Help & Support", href: "/student/dashboard/support", icon: LifeBuoy },
+  { label: "My Learning", href: "/student/my-learning", icon: BookOpen },
+  { label: "My Certificates", href: "/student/certificates", icon: Award },
+  { label: "My Wishlist", href: "/student/wishlist", icon: Heart },
+  { label: "Purchase History", href: "/student/orders", icon: Receipt },
+  { label: "Quiz/Test Results", href: "/student/tests", icon: ClipboardList },
+  { label: "Assignments", href: "/student/assignments", icon: FileCheck2 },
+  { label: "Settings", href: "/student/settings", icon: Settings },
+  { label: "Help & Support", href: "/student/support", icon: LifeBuoy },
 ];
 
 export default function ProfileDropdown({ student }: ProfileDropdownProps) {

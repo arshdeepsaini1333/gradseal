@@ -1,5 +1,20 @@
 import type { Course, Testimonial, StatItem, Feature } from "@/types";
 
+export const categoryEmojis: Record<string, string> = {
+  "Personal Training": "🏋️",
+  Nutrition: "🥗",
+  Yoga: "🧘",
+  Sports: "⚡",
+  "Gym Training": "💪",
+  "Physical Education": "🏃",
+};
+
+export const difficultyColors: Record<Course["difficulty"], string> = {
+  Beginner: "bg-emerald-100 text-emerald-700",
+  Intermediate: "bg-amber-100 text-amber-700",
+  Advanced: "bg-red-100 text-red-700",
+};
+
 export const stats: StatItem[] = [
   { value: "12,000+", label: "Students" },
   { value: "100+", label: "Courses" },
@@ -60,6 +75,8 @@ export const courses: Course[] = [
     image: "/images/course-pt.jpg",
     category: "Personal Training",
     hasCertificate: true,
+    purchaseCount: 3120,
+    createdAt: "2025-01-15",
   },
   {
     id: "2",
@@ -74,6 +91,8 @@ export const courses: Course[] = [
     image: "/images/course-nutrition.jpg",
     category: "Nutrition",
     hasCertificate: true,
+    purchaseCount: 2210,
+    createdAt: "2025-03-02",
   },
   {
     id: "3",
@@ -88,6 +107,8 @@ export const courses: Course[] = [
     image: "/images/course-yoga.jpg",
     category: "Yoga",
     hasCertificate: true,
+    purchaseCount: 1780,
+    createdAt: "2025-05-20",
   },
   {
     id: "4",
@@ -102,6 +123,8 @@ export const courses: Course[] = [
     image: "/images/course-sports.jpg",
     category: "Sports",
     hasCertificate: true,
+    purchaseCount: 980,
+    createdAt: "2026-06-10",
   },
   {
     id: "5",
@@ -116,6 +139,8 @@ export const courses: Course[] = [
     image: "/images/course-gym.jpg",
     category: "Gym Training",
     hasCertificate: true,
+    purchaseCount: 2540,
+    createdAt: "2025-11-01",
   },
   {
     id: "6",
@@ -130,6 +155,8 @@ export const courses: Course[] = [
     image: "/images/course-pe.jpg",
     category: "Physical Education",
     hasCertificate: true,
+    purchaseCount: 640,
+    createdAt: "2026-06-28",
   },
 ];
 

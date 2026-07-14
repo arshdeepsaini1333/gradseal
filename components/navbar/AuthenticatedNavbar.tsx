@@ -90,14 +90,14 @@ export default function AuthenticatedNavbar({
         {/* Right section */}
         <div className="hidden md:flex items-center gap-1 ml-auto shrink-0">
           <Link
-            href="/student/dashboard/my-learning"
+            href="/student/my-learning"
             className="px-3 py-2 rounded-lg text-sm font-medium text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors"
           >
             My Learning
           </Link>
 
           <Link
-            href="/student/dashboard/cart"
+            href="/student/cart"
             aria-label="Cart"
             className="relative p-2 rounded-lg text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors"
           >
@@ -110,7 +110,7 @@ export default function AuthenticatedNavbar({
           </Link>
 
           <Link
-            href="/student/dashboard/notifications"
+            href="/student/notifications"
             aria-label="Notifications"
             className="relative p-2 rounded-lg text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors"
           >
@@ -130,7 +130,7 @@ export default function AuthenticatedNavbar({
         {/* Mobile: cart, notifications, profile always visible, hamburger for the rest */}
         <div className="flex md:hidden items-center gap-1 ml-auto shrink-0">
           <Link
-            href="/student/dashboard/cart"
+            href="/student/cart"
             aria-label="Cart"
             className="relative p-2 rounded-lg text-[#0F172A] hover:bg-slate-100 transition-colors"
           >
@@ -193,13 +193,13 @@ export default function AuthenticatedNavbar({
                 <ChevronDown className="w-4 h-4" aria-hidden="true" />
               </button>
               <Link
-                href="/student/dashboard/my-learning"
+                href="/student/my-learning"
                 className="px-4 py-3 rounded-lg text-sm font-medium text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors"
               >
                 My Learning
               </Link>
               <Link
-                href="/student/dashboard/notifications"
+                href="/student/notifications"
                 className="flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors"
               >
                 Notifications

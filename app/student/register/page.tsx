@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StudentSignupForm from "@/components/forms/StudentSignupForm";
+import { getStudentSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: "Student Register – GradSeal" };
 
-export default function StudentRegisterPage() {
+export default async function StudentRegisterPage() {
+  const student = await getStudentSession();
+  if (student) {
+    redirect("/student/dashboard");
+  }
+
   return (
     <>
       <Navbar />

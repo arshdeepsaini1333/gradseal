@@ -8,7 +8,7 @@ import { mockCartSummary, mockNotificationSummary } from "@/lib/mock-dashboard-d
 
 export const metadata: Metadata = { title: "Student Dashboard – GradSeal" };
 
-export default async function StudentDashboardLayout({ children }: { children: ReactNode }) {
+export default async function StudentAppLayout({ children }: { children: ReactNode }) {
   const student = await getStudentSession();
   if (!student) {
     redirect("/student/login");

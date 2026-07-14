@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StudentLoginForm from "@/components/forms/StudentLoginForm";
+import { getStudentSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: "Student Login – GradSeal" };
 
@@ -10,6 +12,11 @@ interface StudentLoginPageProps {
 }
 
 export default async function StudentLoginPage({ searchParams }: StudentLoginPageProps) {
+  const student = await getStudentSession();
+  if (student) {
+    redirect("/student/dashboard");
+  }
+
   const { verified } = await searchParams;
 
   return (

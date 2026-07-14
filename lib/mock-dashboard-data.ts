@@ -1,4 +1,5 @@
 import { BookOpen, GraduationCap, Award, CalendarClock, TrendingUp, Clock } from "lucide-react";
+import { courses } from "@/lib/data";
 import type {
   DashboardStat,
   ContinueLearningCourse,
@@ -80,3 +81,14 @@ export const continueLearningCourses: ContinueLearningCourse[] = [
 
 export const mockCartSummary: CartSummary = { itemCount: 2 };
 export const mockNotificationSummary: NotificationSummary = { unreadCount: 3 };
+
+export const trendingCourses = [...courses]
+  .sort((a, b) => b.purchaseCount - a.purchaseCount)
+  .slice(0, 3);
+
+const trendingIds = new Set(trendingCourses.map((course) => course.id));
+export const discoverCourses = courses.filter((course) => !trendingIds.has(course.id)).slice(0, 3);
+
+export const recentlyAddedCourses = [...courses]
+  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  .slice(0, 3);

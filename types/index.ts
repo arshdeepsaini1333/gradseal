@@ -10,6 +10,8 @@ export interface Course {
   image: string;
   category: string;
   hasCertificate: boolean;
+  purchaseCount: number;
+  createdAt: string;
 }
 
 export interface Testimonial {
