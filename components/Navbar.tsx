@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,7 +9,6 @@ import { motion, AnimatePresence } from "framer-motion";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Courses", href: "/courses" },
-  { label: "Certificates", href: "/certificates" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
@@ -30,24 +30,23 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 inset-x-0 z-50 border-b transition-all duration-300 ${
         scrolled
-          ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/60"
-          : "bg-transparent"
+          ? "bg-white/80 backdrop-blur-md shadow-sm border-slate-200/60"
+          : "bg-transparent border-transparent"
       }`}
     >
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-bold text-xl text-[#0F172A] shrink-0"
-        >
-          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#2563EB] text-white text-sm font-extrabold">
-            G
-          </span>
-          <span>
-            Grad<span className="text-[#2563EB]">Seal</span>
-          </span>
+        <Link href="/" className="flex items-center shrink-0">
+          <Image
+            src="/gradsealLogo.png"
+            alt="GradSeal"
+            width={640}
+            height={150}
+            className="h-8 w-auto"
+            priority
+          />
         </Link>
 
         {/* Desktop nav links */}

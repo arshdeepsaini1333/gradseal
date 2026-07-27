@@ -89,25 +89,30 @@ model Student {
   firstName    String  @map("first_name")
   lastName     String  @map("last_name")
   email        String  @unique
-  phone        String
-  password     String
+  phone        String?
+  password     String?
   profileImage String? @map("profile_image")
 
-  dateOfBirth DateTime @map("date_of_birth")
-  gender      Gender
+  // Set for accounts created (or linked) via "Continue with Google"; null for
+  // password-only accounts. Google verifies the email itself, so these
+  // accounts skip the OTP flow (isVerified is set true at creation).
+  googleId String? @unique @map("google_id")
+
+  dateOfBirth DateTime? @map("date_of_birth")
+  gender      Gender?
 
   // Address
-  country String
-  state   String
-  city    String
-  pincode String
+  country String?
+  state   String?
+  city    String?
+  pincode String?
   address String?
 
   // Education
-  highestQualification HighestQualification @map("highest_qualification")
-  collegeOrUniversity  String?              @map("college_or_university")
-  currentOccupation    String?              @map("current_occupation")
-  fieldOfStudy         String?              @map("field_of_study")
+  highestQualification HighestQualification? @map("highest_qualification")
+  collegeOrUniversity  String?               @map("college_or_university")
+  currentOccupation    String?               @map("current_occupation")
+  fieldOfStudy         String?               @map("field_of_study")
 
   isVerified Boolean @default(false) @map("is_verified")
   isActive   Boolean @default(true) @map("is_active")

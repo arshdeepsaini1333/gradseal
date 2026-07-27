@@ -30,3 +30,68 @@ export interface SidebarNavItem {
   href: string;
   icon: LucideIcon;
 }
+
+export interface Certificate {
+  id: string;
+  certificateId: string;
+  courseTitle: string;
+  courseSlug: string;
+  category: string;
+  issuedDate: string;
+}
+
+export interface TestItem {
+  id: string;
+  title: string;
+  course: string;
+  status: "upcoming" | "completed";
+  dueDate?: string;
+  durationMinutes?: number;
+  score?: number;
+  totalMarks?: number;
+}
+
+export interface AssignmentItem {
+  id: string;
+  title: string;
+  course: string;
+  dueDate: string;
+  status: "pending" | "submitted" | "graded";
+  grade?: string;
+}
+
+export interface WishlistItem {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  price: number;
+  rating: number;
+}
+
+export interface CartItem {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  price: number;
+  originalPrice?: number;
+}
+
+export interface OrderItem {
+  id: string;
+  orderNumber: string;
+  date: string;
+  items: string[];
+  total: number;
+  status: "completed" | "processing" | "refunded";
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  type: "info" | "success" | "warning" | "order";
+}

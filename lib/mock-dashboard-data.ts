@@ -5,6 +5,13 @@ import type {
   ContinueLearningCourse,
   CartSummary,
   NotificationSummary,
+  Certificate,
+  TestItem,
+  AssignmentItem,
+  WishlistItem,
+  CartItem,
+  OrderItem,
+  NotificationItem,
 } from "@/types/dashboard";
 
 export const dashboardStats: DashboardStat[] = [
@@ -92,3 +99,163 @@ export const discoverCourses = courses.filter((course) => !trendingIds.has(cours
 export const recentlyAddedCourses = [...courses]
   .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   .slice(0, 3);
+
+export const certificates: Certificate[] = [
+  {
+    id: "cert1",
+    certificateId: "GS-PT-2025-0142",
+    courseTitle: "Personal Trainer Fundamentals",
+    courseSlug: "personal-trainer-fundamentals",
+    category: "Personal Training",
+    issuedDate: "2025-11-02",
+  },
+  {
+    id: "cert2",
+    certificateId: "GS-YG-2025-0087",
+    courseTitle: "Yoga Instructor Certification",
+    courseSlug: "yoga-instructor-certification",
+    category: "Yoga",
+    issuedDate: "2025-09-18",
+  },
+];
+
+export const testItems: TestItem[] = [
+  {
+    id: "test1",
+    title: "Module 4 Quiz: Program Design",
+    course: "Personal Trainer Fundamentals",
+    status: "upcoming",
+    dueDate: "2026-07-20",
+    durationMinutes: 30,
+  },
+  {
+    id: "test2",
+    title: "Final Assessment",
+    course: "Sports Nutrition Essentials",
+    status: "completed",
+    score: 87,
+    totalMarks: 100,
+  },
+  {
+    id: "test3",
+    title: "Module 2 Quiz: Asana Basics",
+    course: "Yoga Instructor Certification",
+    status: "completed",
+    score: 94,
+    totalMarks: 100,
+  },
+];
+
+export const assignmentItems: AssignmentItem[] = [
+  {
+    id: "assign1",
+    title: "Client Intake & Goal-Setting Worksheet",
+    course: "Personal Trainer Fundamentals",
+    dueDate: "2026-07-22",
+    status: "pending",
+  },
+  {
+    id: "assign2",
+    title: "7-Day Meal Plan Case Study",
+    course: "Sports Nutrition Essentials",
+    dueDate: "2026-07-10",
+    status: "submitted",
+  },
+  {
+    id: "assign3",
+    title: "Beginner Sequence Design",
+    course: "Yoga Instructor Certification",
+    dueDate: "2026-06-28",
+    status: "graded",
+    grade: "A",
+  },
+];
+
+export const wishlistItems: WishlistItem[] = courses.slice(3, 6).map((course) => ({
+  id: course.id,
+  slug: course.slug,
+  title: course.title,
+  category: course.category,
+  price: 2999,
+  rating: course.rating,
+}));
+
+export const cartItems: CartItem[] = [
+  {
+    id: "1",
+    slug: "certified-personal-trainer",
+    title: "Certified Personal Trainer",
+    category: "Personal Training",
+    price: 4999,
+    originalPrice: 6999,
+  },
+  {
+    id: "3",
+    slug: courses[2]?.slug ?? "yoga-instructor-certification",
+    title: courses[2]?.title ?? "Yoga Instructor Certification",
+    category: courses[2]?.category ?? "Yoga",
+    price: 3499,
+  },
+];
+
+export const orderItems: OrderItem[] = [
+  {
+    id: "order1",
+    orderNumber: "GS-ORD-10234",
+    date: "2025-11-01",
+    items: ["Personal Trainer Fundamentals"],
+    total: 4999,
+    status: "completed",
+  },
+  {
+    id: "order2",
+    orderNumber: "GS-ORD-10198",
+    date: "2025-09-14",
+    items: ["Yoga Instructor Certification", "Sports Nutrition Essentials"],
+    total: 7498,
+    status: "completed",
+  },
+  {
+    id: "order3",
+    orderNumber: "GS-ORD-10261",
+    date: "2026-07-05",
+    items: ["Nutrition Coach Certification"],
+    total: 3999,
+    status: "processing",
+  },
+];
+
+export const notificationItems: NotificationItem[] = [
+  {
+    id: "n1",
+    title: "New assignment posted",
+    message: "\"Client Intake & Goal-Setting Worksheet\" is due July 22.",
+    time: "2 hours ago",
+    read: false,
+    type: "info",
+  },
+  {
+    id: "n2",
+    title: "Certificate issued",
+    message: "Your certificate for Personal Trainer Fundamentals is ready to download.",
+    time: "1 day ago",
+    read: false,
+    type: "success",
+  },
+  {
+    id: "n3",
+    title: "Order confirmed",
+    message: "Your order GS-ORD-10261 has been confirmed.",
+    time: "3 days ago",
+    read: false,
+    type: "order",
+  },
+  {
+    id: "n4",
+    title: "Test reminder",
+    message: "Module 4 Quiz: Program Design is due soon.",
+    time: "5 days ago",
+    read: true,
+    type: "warning",
+  },
+];

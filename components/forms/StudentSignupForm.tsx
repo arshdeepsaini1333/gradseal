@@ -29,6 +29,7 @@ import Textarea from "@/components/ui/Textarea";
 import SectionCard from "@/components/ui/SectionCard";
 import ProgressSteps from "@/components/auth/ProgressSteps";
 import PasswordField from "@/components/auth/PasswordField";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import { registerStudent } from "@/actions/auth";
 import {
   personalInfoSchema,
@@ -173,6 +174,19 @@ export default function StudentSignupForm() {
 
   return (
     <div className="mx-auto w-full max-w-3xl">
+      {step === 1 && (
+        <>
+          <GoogleSignInButton label="Sign up with Google" />
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs font-medium uppercase tracking-wide text-[#94A3B8]">
+              or fill in your details
+            </span>
+            <div className="h-px flex-1 bg-slate-200" />
+          </div>
+        </>
+      )}
+
       <div className="mb-8">
         <ProgressSteps steps={STEPS} currentStep={step} />
       </div>

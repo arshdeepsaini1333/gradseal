@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const quickLinks = [
@@ -20,15 +21,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 font-bold text-xl text-white mb-4"
-            >
-              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#2563EB] text-white text-sm font-extrabold">
-                G
-              </span>
-              <span>
-                Grad<span className="text-[#60A5FA]">Seal</span>
+            <Link href="/" className="inline-flex items-center mb-4">
+              <span className="inline-flex items-center rounded-xl bg-white px-3 py-2">
+                <Image
+                  src="/gradsealLogo.png"
+                  alt="GradSeal"
+                  width={640}
+                  height={150}
+                  className="h-7 w-auto"
+                />
               </span>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm mt-3">

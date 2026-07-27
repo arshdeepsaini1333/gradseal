@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,12 +13,14 @@ interface AuthenticatedNavbarProps {
   student: SessionStudent;
   cartItemCount: number;
   unreadNotificationCount: number;
+  profileCompletionPercent: number;
 }
 
 export default function AuthenticatedNavbar({
   student,
   cartItemCount,
   unreadNotificationCount,
+  profileCompletionPercent,
 }: AuthenticatedNavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -42,16 +45,15 @@ export default function AuthenticatedNavbar({
     >
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-4">
         {/* Logo */}
-        <Link
-          href="/student/dashboard"
-          className="flex items-center gap-2 font-bold text-xl text-[#0F172A] shrink-0"
-        >
-          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#2563EB] text-white text-sm font-extrabold">
-            G
-          </span>
-          <span className="hidden sm:inline">
-            Grad<span className="text-[#2563EB]">Seal</span>
-          </span>
+        <Link href="/student/dashboard" className="flex items-center shrink-0">
+          <Image
+            src="/gradsealLogo.png"
+            alt="GradSeal"
+            width={640}
+            height={150}
+            className="h-8 w-auto"
+            priority
+          />
         </Link>
 
         {/* Left: browse + categories + search */}
@@ -123,7 +125,7 @@ export default function AuthenticatedNavbar({
           </Link>
 
           <div className="ml-1">
-            <ProfileDropdown student={student} />
+            <ProfileDropdown student={student} profileCompletionPercent={profileCompletionPercent} />
           </div>
         </div>
 
@@ -141,7 +143,7 @@ export default function AuthenticatedNavbar({
               </span>
             )}
           </Link>
-          <ProfileDropdown student={student} />
+          <ProfileDropdown student={student} profileCompletionPercent={profileCompletionPercent} />
           <button
             aria-label="Toggle menu"
             className="p-2 rounded-lg text-[#0F172A] hover:bg-slate-100 transition-colors"

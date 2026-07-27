@@ -8,14 +8,24 @@ import { LogIn, Mail } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import PasswordField from "@/components/auth/PasswordField";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import { loginStudent } from "@/actions/auth";
 import { studentLoginSchema } from "@/lib/validations/student-login";
 
+const OAUTH_ERROR_MESSAGES: Record<string, string> = {
+  google_failed: "Google sign-in failed. Please try again.",
+  google_unavailable: "Google sign-in isn't set up yet. Please use email and password.",
+  google_unverified_email: "That Google account's email isn't verified. Please use another sign-in method.",
+  google_rate_limited: "Too many attempts. Please try again in a few minutes.",
+  account_deactivated: "Your account has been deactivated. Please contact support.",
+};
+
 interface StudentLoginFormProps {
   justVerified?: boolean;
+  oauthError?: string;
 }
 
-export default function StudentLoginForm({ justVerified = false }: StudentLoginFormProps) {
+export default function StudentLoginForm({ justVerified = false, oauthError }: StudentLoginFormProps) {
   const [state, formAction, isPending] = useActionState(loginStudent, undefined);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,6 +34,10 @@ export default function StudentLoginForm({ justVerified = false }: StudentLoginF
   useEffect(() => {
     if (justVerified) toast.success("Email verified! Please sign in to continue.");
   }, [justVerified]);
+
+  useEffect(() => {
+    if (oauthError) toast.error(OAUTH_ERROR_MESSAGES[oauthError] ?? "Something went wrong signing in with Google.");
+  }, [oauthError]);
 
   useEffect(() => {
     if (state?.error) toast.error(state.error);
@@ -55,7 +69,17 @@ export default function StudentLoginForm({ justVerified = false }: StudentLoginF
           Sign in to continue your learning journey.
         </p>
 
-        <form action={formAction} onSubmit={handleSubmit} noValidate className="mt-8 flex flex-col gap-5">
+        <div className="mt-8">
+          <GoogleSignInButton />
+        </div>
+
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-xs font-medium uppercase tracking-wide text-[#94A3B8]">or</span>
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <form action={formAction} onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
           <Input
             label="Email Address"
             name="email"

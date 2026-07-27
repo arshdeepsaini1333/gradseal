@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import ActivityRingsAnimation from "@/components/illustrations/ActivityRingsAnimation";
 
 const fadeUpTransition = (delay: number) => ({
   initial: { opacity: 0, y: 32 },
@@ -11,7 +12,7 @@ const fadeUpTransition = (delay: number) => ({
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-[#EFF6FF] via-[#F8FAFC] to-[#F0F9FF] pt-16">
+    <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-gradient-to-br from-[#EFF6FF] via-[#F8FAFC] to-[#F0F9FF] pt-16">
       {/* Background decorative blobs */}
       <div
         aria-hidden
@@ -22,7 +23,7 @@ export default function Hero() {
         className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#60A5FA]/10 blur-3xl pointer-events-none"
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 w-full">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 w-full">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Text content */}
           <div>
@@ -134,7 +135,7 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            className="relative hidden lg:flex items-center justify-center"
+            className="relative hidden lg:flex items-center justify-center self-start"
           >
             {/* Main card */}
             <motion.div
@@ -147,76 +148,12 @@ export default function Hero() {
               }}
               className="relative w-full max-w-md"
             >
-              <div className="bg-white rounded-3xl shadow-2xl p-8 border border-slate-100">
-                {/* Course progress mock */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#60A5FA] flex items-center justify-center text-white text-xl">
-                    🏋️
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[#0F172A] text-sm">
-                      Certified Personal Trainer
-                    </p>
-                    <p className="text-xs text-[#64748B]">Week 8 of 12</p>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="flex justify-between text-xs text-[#64748B] mb-2">
-                    <span>Progress</span>
-                    <span className="font-medium text-[#2563EB]">67%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: "67%" }}
-                      transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
-                      className="h-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#60A5FA]"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  {[
-                    { label: "Anatomy Basics", done: true },
-                    { label: "Training Principles", done: true },
-                    { label: "Program Design", done: false },
-                  ].map(({ label, done }) => (
-                    <div key={label} className="flex items-center gap-2">
-                      <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          done
-                            ? "bg-emerald-100 text-emerald-600"
-                            : "bg-slate-100 text-slate-400"
-                        }`}
-                      >
-                        {done ? (
-                          <svg
-                            className="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 12 12"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M2 6l3 3 5-5"
-                            />
-                          </svg>
-                        ) : (
-                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                        )}
-                      </div>
-                      <span
-                        className={`text-xs ${done ? "text-[#0F172A]" : "text-[#64748B]"}`}
-                      >
-                        {label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ActivityRingsAnimation
+                title="Today's Activity"
+                subtitle="Move. Train. Achieve."
+                widthClass="w-full max-w-md"
+                sceneHeightClass="h-56"
+              />
 
               {/* Certificate floating badge */}
               <motion.div
