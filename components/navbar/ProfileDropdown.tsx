@@ -18,6 +18,7 @@ import {
 import type { SessionStudent } from "@/lib/auth/session";
 import { logoutStudent } from "@/actions/auth";
 import AvatarCompletionRing from "@/components/profile/AvatarCompletionRing";
+import Avatar from "@/components/ui/Avatar";
 
 interface ProfileDropdownProps {
   student: Pick<SessionStudent, "firstName" | "lastName" | "email" | "profileImage">;
@@ -46,7 +47,6 @@ export default function ProfileDropdown({ student, profileCompletionPercent }: P
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const fullName = `${student.firstName} ${student.lastName}`;
-  const initials = `${student.firstName[0] ?? ""}${student.lastName[0] ?? ""}`.toUpperCase();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -67,12 +67,12 @@ export default function ProfileDropdown({ student, profileCompletionPercent }: P
           onClick={() => setOpen((v) => !v)}
           className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#2563EB] to-[#60A5FA] text-white text-sm font-semibold shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
         >
-          {student.profileImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={student.profileImage} alt={fullName} className="w-full h-full object-cover" />
-          ) : (
-            initials
-          )}
+          <Avatar
+            src={student.profileImage}
+            name={fullName}
+            email={student.email}
+            className="w-full h-full object-cover"
+          />
         </button>
       </AvatarCompletionRing>
 
@@ -81,16 +81,12 @@ export default function ProfileDropdown({ student, profileCompletionPercent }: P
           <div className="px-4 py-3 flex items-center gap-3">
             <AvatarCompletionRing percent={profileCompletionPercent} size={48}>
               <div className="flex items-center justify-center w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-[#2563EB] to-[#60A5FA] text-white text-sm font-semibold shrink-0">
-                {student.profileImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={student.profileImage}
-                    alt={fullName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  initials
-                )}
+                <Avatar
+                  src={student.profileImage}
+                  name={fullName}
+                  email={student.email}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </AvatarCompletionRing>
             <div className="min-w-0">

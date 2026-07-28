@@ -17,7 +17,12 @@ export default async function StudentDashboardPage() {
 
   return (
     <div className="space-y-10">
-      <WelcomeSection firstName={student.firstName} profileImage={student.profileImage} />
+      <WelcomeSection
+        firstName={student.firstName}
+        lastName={student.lastName}
+        email={student.email}
+        profileImage={student.profileImage}
+      />
       <DiscoverCoursesSection courses={discoverCourses} />
       <TrendingCoursesSection courses={trendingCourses} />
       <RecentlyAddedSection courses={recentlyAddedCourses} />

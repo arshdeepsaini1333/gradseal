@@ -48,18 +48,6 @@ export async function updateStudentProfile(
 
   const data = validated.data;
 
-  let profileImagePath: string | undefined;
-  const profileImageFile = formData.get("profileImage");
-  if (profileImageFile instanceof File && profileImageFile.size > 0) {
-    try {
-      profileImagePath = await saveProfileImage(profileImageFile);
-    } catch (error) {
-      return {
-        message: error instanceof Error ? error.message : "Could not process profile picture",
-      };
-    }
-  }
-
   await prisma.student.update({
     where: { id: session.id },
     data: {
@@ -77,10 +65,54 @@ export async function updateStudentProfile(
       collegeOrUniversity: data.collegeOrUniversity || null,
       currentOccupation: data.currentOccupation || null,
       fieldOfStudy: data.fieldOfStudy || null,
-      ...(profileImagePath ? { profileImage: profileImagePath } : {}),
     },
   });
 
   revalidatePath("/student/profile");
   return { success: true, message: "Profile updated successfully." };
+}
+
+// ---------------------------------------------------------------------------
+// Profile photo — its own dedicated upload, independent of the rest of the
+// profile form (cropped client-side, then submitted as soon as the user
+// confirms, rather than waiting on a full-form "Save Changes").
+// ---------------------------------------------------------------------------
+
+export type UploadPhotoState =
+  | { success?: boolean; message?: string; url?: string }
+  | undefined;
+
+export async function uploadProfilePhoto(
+  _prevState: UploadPhotoState,
+  formData: FormData
+): Promise<UploadPhotoState> {
+  const session = await getStudentSession();
+  if (!session) {
+    return { message: "Your session has expired. Please sign in again." };
+  }
+
+  const file = formData.get("profileImage");
+  if (!(file instanceof File) || file.size === 0) {
+    return { message: "Please choose a photo to upload." };
+  }
+
+  let profileImagePath: string;
+  try {
+    profileImagePath = await saveProfileImage(file);
+  } catch (error) {
+    return {
+      message: error instanceof Error ? error.message : "Could not process profile picture",
+    };
+  }
+
+  await prisma.student.update({
+    where: { id: session.id },
+    data: { profileImage: profileImagePath },
+  });
+
+  revalidatePath("/student/profile");
+  revalidatePath("/student/dashboard");
+  revalidatePath("/student/settings");
+
+  return { success: true, message: "Profile photo updated.", url: profileImagePath };
 }

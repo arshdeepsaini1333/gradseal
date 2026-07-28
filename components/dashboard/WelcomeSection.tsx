@@ -1,13 +1,14 @@
 import { getGreeting } from "@/lib/dashboard/greeting";
+import Avatar from "@/components/ui/Avatar";
 
 interface WelcomeSectionProps {
   firstName: string;
+  lastName: string;
+  email: string;
   profileImage: string | null;
 }
 
-export default function WelcomeSection({ firstName, profileImage }: WelcomeSectionProps) {
-  const initials = firstName[0]?.toUpperCase() ?? "";
-
+export default function WelcomeSection({ firstName, lastName, email, profileImage }: WelcomeSectionProps) {
   return (
     <section className="flex items-center justify-between gap-4 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
       <div>
@@ -20,12 +21,12 @@ export default function WelcomeSection({ firstName, profileImage }: WelcomeSecti
       </div>
 
       <div className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-[#2563EB] to-[#60A5FA] text-white text-xl font-bold shrink-0">
-        {profileImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={profileImage} alt={firstName} className="w-full h-full object-cover" />
-        ) : (
-          initials
-        )}
+        <Avatar
+          src={profileImage}
+          name={`${firstName} ${lastName}`}
+          email={email}
+          className="w-full h-full object-cover"
+        />
       </div>
     </section>
   );

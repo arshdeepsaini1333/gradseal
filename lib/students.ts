@@ -36,3 +36,19 @@ export const getStudentProfile = cache(async () => {
 });
 
 export type StudentProfile = NonNullable<Awaited<ReturnType<typeof getStudentProfile>>>;
+
+// Lean account-security shape for the settings page — deliberately returns
+// only a `hasPassword` boolean, never the hash itself, so it's safe to pass
+// straight into a client component.
+export const getStudentAccountInfo = cache(async () => {
+  const session = await getStudentSession();
+  if (!session) return null;
+
+  const student = await prisma.student.findUnique({
+    where: { id: session.id },
+    select: { email: true, password: true },
+  });
+  if (!student) return null;
+
+  return { email: student.email, hasPassword: !!student.password };
+});

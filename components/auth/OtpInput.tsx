@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState, ClipboardEvent, KeyboardEvent, ChangeEvent } from "react";
+import { useEffect, useRef, useState, ClipboardEvent, KeyboardEvent, ChangeEvent } from "react";
 
 interface OtpInputProps {
   length?: number;
   name: string;
   error?: string;
   disabled?: boolean;
+  onChange?: (code: string) => void;
 }
 
 export default function OtpInput({
@@ -14,10 +15,17 @@ export default function OtpInput({
   name,
   error,
   disabled = false,
+  onChange,
 }: OtpInputProps) {
   const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const errorId = `${name}-error`;
+  const code = digits.join("");
+
+  useEffect(() => {
+    onChange?.(code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code]);
 
   function updateDigit(index: number, value: string) {
     const next = [...digits];
@@ -55,8 +63,6 @@ export default function OtpInput({
     const lastIndex = Math.min(pasted.length, length) - 1;
     inputRefs.current[lastIndex]?.focus();
   }
-
-  const code = digits.join("");
 
   return (
     <div>

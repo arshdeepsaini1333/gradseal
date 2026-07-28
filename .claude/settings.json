@@ -2,7 +2,21 @@
   "permissions": {
     "allow": [
       "Bash(curl -s -b \"student_session=2174b27a40fcbb4dd4a796193197621b44087dac6bffecd3d9a546c7b90ec85d\" http://localhost:3000/student/dashboard -o /tmp_dashboard.html -w \"HTTP %{http_code}\\\\n\")",
-      "Bash(wc -l /tmp_dashboard.html)"
+      "Bash(wc -l /tmp_dashboard.html)",
+      "Bash(curl -s -D - -o /tmp/settings_resp.html -w \"\\\\nSTATUS:%{http_code}\\\\n\" http://localhost:3000/student/settings)",
+      "Bash(curl -s -D - -o /tmp/settings_resp2.html -w \"\\\\nSTATUS:%{http_code}\\\\n\" http://localhost:3000/student/settings)",
+      "Bash(curl -s -o /dev/null -w \"GET /student/login -> %{http_code}\\\\n\" http://localhost:3000/student/login)",
+      "Bash(:)",
+      "Bash(curl -s -o /dev/null -w \"GET /student/settings -> %{http_code}\\\\n\" http://localhost:3000/student/settings)",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
+      "Bash(curl -s -o /dev/null -w \"port 3911 -> %{http_code}\\\\n\" --max-time 3 http://localhost:3911/)",
+      "Bash(export MSYS_NO_PATHCONV=1)",
+      "Bash(curl -s -o /dev/null -w \"settings -> %{http_code}\\\\n\" \"http://localhost:3000/student/settings\")",
+      "Bash(node \"C:\\\\Users\\\\acer\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--gradseal-gradseal\\\\a15619cc-5668-4567-8fc7-a76bf840177e\\\\scratchpad\\\\s3-smoke-test.mjs\")",
+      "Bash(cp \"C:\\\\Users\\\\acer\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--gradseal-gradseal\\\\a15619cc-5668-4567-8fc7-a76bf840177e\\\\scratchpad\\\\s3-smoke-test.mjs\" \"d:/gradseal/gradseal/s3-smoke-test.mjs\")",
+      "Bash(node s3-smoke-test.mjs)",
+      "Bash(npm ls *)",
+      "Bash(curl -s -o /dev/null -w \"profile -> %{http_code}\\\\n\" \"http://localhost:3000/student/profile\")"
     ]
   }
 }

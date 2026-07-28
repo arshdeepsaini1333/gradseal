@@ -1,7 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { uploadPublicObject } from "@/lib/aws/s3";
 
 const MAX_PROFILE_IMAGE_BYTES = 2 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -15,14 +14,8 @@ export async function saveProfileImage(file: File): Promise<string> {
   }
 
   const extension = file.type.split("/")[1];
-  const filename = `${randomUUID()}.${extension}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "students");
-  await mkdir(uploadDir, { recursive: true });
-
+  const key = `profilephoto/${randomUUID()}.${extension}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(uploadDir, filename), buffer);
 
-  // NOTE: local disk storage works for a single-instance/dev deployment only.
-  // Swap this for S3/Cloudinary/Vercel Blob before deploying to serverless infra.
-  return `/uploads/students/${filename}`;
+  return uploadPublicObject(key, buffer, file.type);
 }

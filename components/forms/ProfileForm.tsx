@@ -15,7 +15,6 @@ import {
   School,
   Briefcase,
   BookOpen,
-  Upload,
 } from "lucide-react";
 
 import Button from "@/components/ui/Button";
@@ -67,7 +66,6 @@ export default function ProfileForm({ initialValues }: ProfileFormProps) {
   const [state, formAction, isPending] = useActionState(updateStudentProfile, undefined);
   const [values, setValues] = useState<ProfileFormValues>(initialValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [profileImageName, setProfileImageName] = useState<string | null>(null);
 
   const serverErrors = state?.errors ? flattenServerErrors(state.errors) : null;
   const displayErrors = serverErrors ? { ...errors, ...serverErrors } : errors;
@@ -147,26 +145,6 @@ export default function ProfileForm({ initialValues }: ProfileFormProps) {
             onChange={(e) => setField("gender", e.target.value)}
             error={displayErrors.gender}
           />
-          <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-sm font-medium text-[#0F172A]">
-              Profile Picture <span className="text-[#94A3B8]">(optional)</span>
-            </label>
-            <label
-              htmlFor="profileImage"
-              className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-[#64748B] transition-colors hover:border-[#2563EB] hover:text-[#2563EB]"
-            >
-              <Upload className="h-4.5 w-4.5" aria-hidden="true" />
-              {profileImageName || "Upload a JPEG, PNG, or WEBP (max 2MB)"}
-            </label>
-            <input
-              id="profileImage"
-              name="profileImage"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="sr-only"
-              onChange={(e) => setProfileImageName(e.target.files?.[0]?.name ?? null)}
-            />
-          </div>
         </SectionCard>
       </div>
 

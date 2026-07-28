@@ -50,6 +50,21 @@ export function otpEmailTemplate({
   };
 }
 
+export function createPasswordOtpEmailTemplate({
+  firstName,
+  otp,
+  expiryMinutes,
+}: OtpEmailParams): { subject: string; html: string } {
+  return {
+    subject: `Your GradSeal verification code: ${otp}`,
+    html: otpEmailShell(
+      "Create your password",
+      `Hi ${firstName}, use the code below to verify it's you before creating a password for your GradSeal account. This code expires in ${expiryMinutes} minutes. If you didn't request this, you can safely ignore this email — your account is still protected by Google Sign-In.`,
+      otpDigitsTable(otp)
+    ),
+  };
+}
+
 export function loginOtpEmailTemplate({
   firstName,
   otp,

@@ -5,7 +5,7 @@ import { Mail } from "lucide-react";
 import { getStudentProfile } from "@/lib/students";
 import { getProfileCompletion } from "@/lib/profile-completion";
 import ProfileCompletionMeter from "@/components/profile/ProfileCompletionMeter";
-import AvatarCompletionRing from "@/components/profile/AvatarCompletionRing";
+import AvatarUpload from "@/components/profile/AvatarUpload";
 import ProfileForm from "@/components/forms/ProfileForm";
 
 export const metadata: Metadata = { title: "Profile – GradSeal" };
@@ -18,7 +18,6 @@ export default async function ProfilePage() {
 
   const completion = getProfileCompletion(profile);
   const fullName = `${profile.firstName} ${profile.lastName}`;
-  const initials = `${profile.firstName[0] ?? ""}${profile.lastName[0] ?? ""}`.toUpperCase();
 
   return (
     <div className="space-y-6">
@@ -33,16 +32,12 @@ export default async function ProfilePage() {
 
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 sm:p-8">
         <div className="flex items-center gap-5">
-          <AvatarCompletionRing percent={completion.percent} size={92} strokeWidth={4}>
-            <div className="flex items-center justify-center w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-[#2563EB] to-[#60A5FA] text-white text-2xl font-bold shrink-0">
-              {profile.profileImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.profileImage} alt={fullName} className="w-full h-full object-cover" />
-              ) : (
-                initials
-              )}
-            </div>
-          </AvatarCompletionRing>
+          <AvatarUpload
+            profileImage={profile.profileImage}
+            name={fullName}
+            email={profile.email}
+            ringPercent={completion.percent}
+          />
           <div>
             <h2 className="text-xl font-bold text-[#0F172A]">{fullName}</h2>
             <p className="mt-1 flex items-center gap-1.5 text-sm text-[#64748B]">
@@ -53,7 +48,7 @@ export default async function ProfilePage() {
               href="#section-personal"
               className="mt-2 inline-block text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8]"
             >
-              Edit photo &amp; details
+              Edit details
             </a>
           </div>
         </div>

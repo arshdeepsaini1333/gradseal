@@ -259,8 +259,11 @@ model Order {
   id          String @id @default(cuid())
   orderNumber String @unique @map("order_number")
 
-  studentId String  @map("student_id")
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  // Nullable + SET NULL on delete: when a student deletes their account, the
+  // order itself is kept for revenue/accounting purposes but detached from
+  // the (now-gone) student rather than blocking the deletion.
+  studentId String?  @map("student_id")
+  student   Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
 
   totalAmount Decimal @map("total_amount") @db.Decimal(10, 2)
 
