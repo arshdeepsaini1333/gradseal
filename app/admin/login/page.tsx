@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
-import ComingSoon from "@/components/ComingSoon";
+import { redirect } from "next/navigation";
+import AdminLoginForm from "@/components/forms/AdminLoginForm";
+import { getAdminSession } from "@/lib/auth/admin-session";
 
 export const metadata: Metadata = { title: "Admin Login – GradSeal" };
 
-export default function AdminLoginPage() {
+export default async function AdminLoginPage() {
+  const admin = await getAdminSession();
+  if (admin) {
+    redirect("/admin/dashboard");
+  }
+
   return (
-    <ComingSoon
-      title="Admin Login"
-      description="GradSeal admin panel access. Admin authentication is coming soon."
-    />
+    <main className="flex min-h-screen flex-1 items-center justify-center bg-[#F8FAFC] px-4 py-20">
+      <AdminLoginForm />
+    </main>
   );
 }
