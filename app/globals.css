@@ -9,9 +9,27 @@
   --color-brand-bg: #F8FAFC;
   --color-brand-text: #0F172A;
   --color-brand-muted: #64748B;
-  --color-card: #FFFFFF;
+  --color-card: var(--card);
 
   --font-sans: var(--font-inter);
+
+  /* Admin shell (shadcn/ui) tokens — values live at :root / .admin-shell below,
+     scoped so a `dark` class only repaints inside .admin-shell. */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
 :root {
@@ -58,4 +76,61 @@ html {
   background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Admin shell tokens (shadcn/ui) — additive only, nothing above is edited */
+/* except --color-card, repointed from a literal to var(--card) so it can */
+/* respond to dark mode; its default below is still #FFFFFF, so every     */
+/* existing bg-card usage renders identically to before.                  */
+/* ---------------------------------------------------------------------- */
+
+:root {
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary-foreground: #f8fafc;
+  --secondary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #2563eb;
+
+  --radius: 0.75rem;
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Dark values only take effect inside the admin shell — an errant `dark`
+   class left on <html> after leaving /admin (next-themes doesn't clean up
+   on unmount) is inert everywhere else because .admin-shell won't exist. */
+html.dark .admin-shell {
+  --background: #0b1220;
+  --foreground: #e2e8f0;
+  --card: #111a2e;
+  --card-foreground: #e2e8f0;
+  --popover: #111a2e;
+  --popover-foreground: #e2e8f0;
+  --primary-foreground: #f8fafc;
+  --secondary-foreground: #ffffff;
+  --muted: #1a2436;
+  --muted-foreground: #94a3b8;
+  --accent-foreground: #ffffff;
+  --destructive: #f87171;
+  --destructive-foreground: #1a0a0a;
+  --border: #1f2b42;
+  --input: #1f2b42;
+  --ring: #3987e5;
+}
+
+.admin-shell {
+  background: var(--background);
+  color: var(--foreground);
 }
