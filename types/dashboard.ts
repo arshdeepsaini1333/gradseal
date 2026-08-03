@@ -17,10 +17,6 @@ export interface ContinueLearningCourse {
   progressPercent: number;
 }
 
-export interface CartSummary {
-  itemCount: number;
-}
-
 export interface NotificationSummary {
   unreadCount: number;
 }
@@ -67,24 +63,6 @@ export interface WishlistItem {
   category: string;
   price: number;
   rating: number;
-}
-
-export interface CartItem {
-  id: string;
-  slug: string;
-  title: string;
-  category: string;
-  price: number;
-  originalPrice?: number;
-}
-
-export interface OrderItem {
-  id: string;
-  orderNumber: string;
-  date: string;
-  items: string[];
-  total: number;
-  status: "completed" | "processing" | "refunded";
 }
 
 export interface NotificationItem {

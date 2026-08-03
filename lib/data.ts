@@ -16,9 +16,9 @@ export const difficultyColors: Record<Course["difficulty"], string> = {
 };
 
 export const stats: StatItem[] = [
-  { value: "12,000+", label: "Students" },
-  { value: "100+", label: "Courses" },
-  { value: "500+", label: "Certificates Issued" },
+  { value: "1500+", label: "Students" },
+  { value: "20+", label: "Courses" },
+  { value: "300+", label: "Certificates Issued" },
   { value: "95%", label: "Completion Rate" },
 ];
 

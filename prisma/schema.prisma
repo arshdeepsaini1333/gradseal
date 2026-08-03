@@ -4,8 +4,6 @@
 // - Instructors: add an `Instructor` model of its own (mirroring Admin/Student)
 //   with an `instructorId` FK on Course, if course ownership ever needs to move
 //   off Admin.
-// - Quizzes / Assignments: attach via `moduleId` or `courseId` FK, plus
-//   Question / Answer / Submission models mirroring the LessonProgress pattern.
 // - Coupons: standalone `Coupon` model (code, discount type, validity window),
 //   linked to Order via an optional `couponId` FK.
 // - Reviews: `Review` model keyed by `@@unique([studentId, courseId])`, same
@@ -154,6 +152,7 @@ model Student {
   certificates     Certificate[]
   lessonProgresses LessonProgress[]
   sessions         StudentSession[]
+  cartItems        CartItem[]
 
   @@index([isVerified])
   @@map("students")
@@ -221,8 +220,7 @@ model Course {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  categoryId String   @map("category_id")
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categories Category[]
 
   // The admin who uploaded/owns this course.
   uploadedById String @map("uploaded_by_id")
@@ -232,8 +230,8 @@ model Course {
   enrollments  Enrollment[]
   certificates Certificate[]
   orderItems   OrderItem[]
+  cartItems    CartItem[]
 
-  @@index([categoryId])
   @@index([uploadedById])
   @@index([isPublished, isFeatured])
   @@map("courses")
@@ -258,7 +256,8 @@ model Lesson {
   title       String
   description String?
 
-  videoUrl String @map("video_url")
+  videoUrl String?  @map("video_url")
+  images   String[] @default([])
   duration Int
 
   position Int
@@ -269,9 +268,54 @@ model Lesson {
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
   progresses LessonProgress[]
+  test       Test?
 
   @@index([moduleId, position])
   @@map("lessons")
+}
+
+// One MCQ test per lesson.
+model Test {
+  id           String @id @default(cuid())
+  title        String
+  passingScore Int    @default(70) @map("passing_score")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  lessonId String @unique @map("lesson_id")
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  questions Question[]
+
+  @@map("tests")
+}
+
+model Question {
+  id       String @id @default(cuid())
+  text     String
+  position Int
+
+  testId String @map("test_id")
+  test   Test   @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  options AnswerOption[]
+
+  @@index([testId, position])
+  @@map("questions")
+}
+
+model AnswerOption {
+  id        String  @id @default(cuid())
+  text      String
+  isCorrect Boolean @default(false) @map("is_correct")
+  position  Int
+
+  questionId String   @map("question_id")
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId, position])
+  @@map("answer_options")
 }
 
 // ---------------------------------------------------------------------------
@@ -293,6 +337,11 @@ model Order {
   paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
   paymentMethod String        @map("payment_method")
   transactionId String?       @map("transaction_id")
+
+  // Razorpay order id (`order_xxx`), created up front so the payment can be
+  // verified (and the matching local Order looked up) once Razorpay redirects
+  // back with a payment id + signature.
+  razorpayOrderId String? @unique @map("razorpay_order_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -318,6 +367,25 @@ model OrderItem {
   @@index([orderId])
   @@index([courseId])
   @@map("order_items")
+}
+
+// A student's shopping cart: one row per course they've added, deleted once
+// the course is purchased (or removed manually). No separate `Cart` parent
+// row — `studentId` on the item is enough, same shape as Enrollment/Wishlist.
+model CartItem {
+  id String @id @default(cuid())
+
+  studentId String @map("student_id")
+  courseId  String @map("course_id")
+
+  addedAt DateTime @default(now()) @map("added_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@map("cart_items")
 }
 
 // ---------------------------------------------------------------------------

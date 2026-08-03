@@ -3,12 +3,15 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import Stats from "@/components/Stats";
 import Features from "@/components/Features";
-import CoursePreview from "@/components/CoursePreview";
+import FeaturedCourses from "@/components/courses/FeaturedCourses";
 import CertificatePreview from "@/components/CertificatePreview";
 import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
+import { getFeaturedCourses } from "@/lib/courses";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featuredCourses = await getFeaturedCourses(8);
+
   return (
     <>
       <AppNavbar />
@@ -16,7 +19,7 @@ export default function HomePage() {
         <Hero />
         <Stats />
         <Features />
-        <CoursePreview />
+        <FeaturedCourses courses={featuredCourses} viewAllHref="/courses" />
         <CertificatePreview />
         <Testimonials />
         <CTA />

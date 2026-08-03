@@ -1,3 +1,11 @@
+import type { CatalogCourse } from "@/lib/courses";
+
+export const levelLabel: Record<CatalogCourse["level"], "Beginner" | "Intermediate" | "Advanced"> = {
+  BEGINNER: "Beginner",
+  INTERMEDIATE: "Intermediate",
+  ADVANCED: "Advanced",
+};
+
 export function formatPrice(value: number): string {
   return `₹${value.toLocaleString("en-IN")}`;
 }

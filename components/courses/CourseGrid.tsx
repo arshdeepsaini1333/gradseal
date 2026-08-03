@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bookmark, Clock, Users, Award, X, BookOpen } from "lucide-react";
-import { getInstructor } from "@/lib/mockCourses";
+import { Bookmark, Clock, Award, X, BookOpen } from "lucide-react";
 import { useCourseFilters } from "./CourseFilterProvider";
-import { formatPrice, formatCount } from "./courseFormat";
-import StarRating from "./StarRating";
-import type { Course } from "@/types/course-catalog";
+import { formatPrice, discountPercent, levelLabel } from "./courseFormat";
+import type { CatalogCourse } from "@/lib/courses";
 
 const levelColors: Record<string, string> = {
   Beginner: "bg-emerald-100 text-emerald-700",
@@ -34,11 +33,11 @@ function CourseCard({
   course,
   onQuickView,
 }: {
-  course: Course;
-  onQuickView: (course: Course) => void;
+  course: CatalogCourse;
+  onQuickView: (course: CatalogCourse) => void;
 }) {
   const [bookmarked, setBookmarked] = useState(false);
-  const instructor = getInstructor(course.instructorId);
+  const level = levelLabel[course.level];
 
   return (
     <motion.div
@@ -48,15 +47,18 @@ function CourseCard({
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -6 }}
-      className={`group rounded-3xl bg-gradient-to-br ${course.gradient} p-[1.5px] shadow-sm hover:shadow-xl transition-shadow`}
+      className="group rounded-3xl bg-gradient-to-br from-[#2563EB] to-[#06B6D4] p-[1.5px] shadow-sm hover:shadow-xl transition-shadow"
     >
       <div className="flex h-full flex-col rounded-[22px] bg-white overflow-hidden">
-        <div className={`relative h-36 overflow-hidden bg-gradient-to-br ${course.gradient}`}>
-          <span className="absolute inset-0 flex items-center justify-center text-5xl transition-transform duration-500 group-hover:scale-110">
-            {course.icon}
-          </span>
+        <div className="relative h-36 overflow-hidden bg-[#F8FAFC]">
+          <Image
+            src={course.thumbnail}
+            alt={course.title}
+            fill
+            className="object-contain p-8 transition-transform duration-500 group-hover:scale-110"
+          />
           <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-white/90 text-[#0F172A] text-[10px] font-semibold shadow-sm">
-            {course.category}
+            {course.categories[0]?.name ?? "General"}
           </span>
           <button
             onClick={() => setBookmarked((v) => !v)}
@@ -66,25 +68,21 @@ function CourseCard({
           >
             <Bookmark className={`w-3.5 h-3.5 ${bookmarked ? "fill-[#2563EB] text-[#2563EB]" : "text-[#64748B]"}`} />
           </button>
-          {course.hasCertificate && (
-            <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 text-[#2563EB] text-[10px] font-semibold shadow-sm">
-              <Award className="w-3 h-3" />
-              Certificate
-            </span>
-          )}
+          <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 text-[#2563EB] text-[10px] font-semibold shadow-sm">
+            <Award className="w-3 h-3" />
+            Certificate
+          </span>
         </div>
 
         <div className="p-4 flex flex-col flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${levelColors[course.level]}`}>
-              {course.level}
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${levelColors[level]}`}>
+              {level}
             </span>
           </div>
 
           <h3 className="font-bold text-[#0F172A] text-sm leading-snug mb-1.5 line-clamp-2">{course.title}</h3>
-          <p className="text-[11px] text-[#64748B] mb-2 truncate">{instructor.name}</p>
-
-          <StarRating rating={course.rating} size="sm" />
+          <p className="text-[11px] text-[#64748B] mb-2 line-clamp-2">{course.shortDescription}</p>
 
           <div className="flex items-center gap-3 mt-2 text-[10px] text-[#64748B]">
             <span className="inline-flex items-center gap-1">
@@ -92,13 +90,18 @@ function CourseCard({
               {course.duration}
             </span>
             <span className="inline-flex items-center gap-1">
-              <Users className="w-3 h-3" />
-              {formatCount(course.studentsEnrolled)}
+              <BookOpen className="w-3 h-3" />
+              {course.totalLessons} lessons
             </span>
           </div>
 
           <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-            <span className="font-extrabold text-[#0F172A] text-sm">{formatPrice(course.price)}</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-extrabold text-[#0F172A] text-sm">{formatPrice(course.discountedPrice ?? course.price)}</span>
+              {course.discountedPrice && (
+                <span className="text-[10px] text-[#94A3B8] line-through">{formatPrice(course.price)}</span>
+              )}
+            </div>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => onQuickView(course)}
@@ -120,8 +123,10 @@ function CourseCard({
   );
 }
 
-function QuickViewModal({ course, onClose }: { course: Course; onClose: () => void }) {
-  const instructor = getInstructor(course.instructorId);
+function QuickViewModal({ course, onClose }: { course: CatalogCourse; onClose: () => void }) {
+  const level = levelLabel[course.level];
+  const discount = discountPercent(course.discountedPrice ?? course.price, course.price);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -138,53 +143,46 @@ function QuickViewModal({ course, onClose }: { course: Course; onClose: () => vo
         onClick={(e) => e.stopPropagation()}
         className="relative w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
       >
-        <div className={`relative h-40 bg-gradient-to-br ${course.gradient} flex items-center justify-center text-6xl`}>
-          {course.icon}
+        <div className="relative h-40 bg-[#F8FAFC] flex items-center justify-center">
+          <Image src={course.thumbnail} alt={course.title} fill className="object-contain p-10" />
           <button
             onClick={onClose}
             aria-label="Close quick view"
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition-transform"
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition-transform z-10"
           >
             <X className="w-4 h-4 text-[#0F172A]" />
           </button>
         </div>
         <div className="p-6">
-          <span className={`inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full mb-3 ${levelColors[course.level]}`}>
-            {course.level} · {course.category}
+          <span className={`inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full mb-3 ${levelColors[level]}`}>
+            {level} · {course.categories.map((c) => c.name).join(", ")}
           </span>
           <h3 className="text-xl font-extrabold text-[#0F172A] mb-2">{course.title}</h3>
-          <p className="text-sm text-[#64748B] leading-relaxed mb-4">{course.description}</p>
+          <p className="text-sm text-[#64748B] leading-relaxed mb-4">{course.shortDescription}</p>
 
-          <div className="flex items-center gap-2 mb-4">
-            <span
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-              style={{ background: instructor.color }}
-            >
-              {instructor.initials}
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-[#0F172A]">{instructor.name}</p>
-              <p className="text-xs text-[#64748B]">{instructor.title}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 mb-5 text-center">
+          <div className="grid grid-cols-2 gap-3 mb-5 text-center">
             <div className="rounded-xl bg-[#F8FAFC] p-3">
               <Clock className="w-4 h-4 text-[#2563EB] mx-auto mb-1" />
               <p className="text-xs font-semibold text-[#0F172A]">{course.duration}</p>
             </div>
             <div className="rounded-xl bg-[#F8FAFC] p-3">
               <BookOpen className="w-4 h-4 text-[#2563EB] mx-auto mb-1" />
-              <p className="text-xs font-semibold text-[#0F172A]">{course.lessons} lessons</p>
-            </div>
-            <div className="rounded-xl bg-[#F8FAFC] p-3">
-              <Users className="w-4 h-4 text-[#2563EB] mx-auto mb-1" />
-              <p className="text-xs font-semibold text-[#0F172A]">{formatCount(course.studentsEnrolled)}</p>
+              <p className="text-xs font-semibold text-[#0F172A]">{course.totalLessons} lessons</p>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-2xl font-extrabold text-[#0F172A]">{formatPrice(course.price)}</span>
+            <div>
+              <span className="text-2xl font-extrabold text-[#0F172A]">
+                {formatPrice(course.discountedPrice ?? course.price)}
+              </span>
+              {course.discountedPrice && (
+                <>
+                  <span className="ml-2 text-sm text-[#94A3B8] line-through">{formatPrice(course.price)}</span>
+                  {discount > 0 && <span className="ml-2 text-xs font-semibold text-emerald-600">{discount}% off</span>}
+                </>
+              )}
+            </div>
             <Link
               href={`/courses/${course.slug}`}
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#06B6D4] text-white text-sm font-bold shadow-lg hover:shadow-xl transition-all"
@@ -199,9 +197,9 @@ function QuickViewModal({ course, onClose }: { course: Course; onClose: () => vo
 }
 
 export default function CourseGrid() {
-  const { filteredCourses } = useCourseFilters();
+  const { filteredCourses, categories: selectedCategories } = useCourseFilters();
   const [isLoading, setIsLoading] = useState(true);
-  const [quickViewCourse, setQuickViewCourse] = useState<Course | null>(null);
+  const [quickViewCourse, setQuickViewCourse] = useState<CatalogCourse | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 500);
@@ -209,7 +207,7 @@ export default function CourseGrid() {
   }, []);
 
   return (
-    <div id="browse-courses" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 scroll-mt-32">
+    <div id="browse-courses" className="py-8 scroll-mt-32">
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -218,9 +216,23 @@ export default function CourseGrid() {
         </div>
       ) : filteredCourses.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-4xl mb-4">🔍</p>
-          <h3 className="text-xl font-bold text-[#0F172A] mb-2">No courses found</h3>
-          <p className="text-[#64748B]">Try adjusting your search or filters.</p>
+          {selectedCategories.length > 0 ? (
+            <>
+              <p className="text-4xl mb-4">🚧</p>
+              <h3 className="text-xl font-bold text-[#0F172A] mb-2">Coming soon</h3>
+              <p className="text-[#64748B]">
+                We don&apos;t have a course in{" "}
+                <span className="font-semibold text-[#0F172A]">{selectedCategories.join(", ")}</span> yet — check
+                back soon, or browse another category.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-4xl mb-4">🔍</p>
+              <h3 className="text-xl font-bold text-[#0F172A] mb-2">No courses found</h3>
+              <p className="text-[#64748B]">Try adjusting your search or filters.</p>
+            </>
+          )}
         </div>
       ) : (
         <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">

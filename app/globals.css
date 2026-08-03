@@ -78,6 +78,15 @@ html {
   animation: shimmer 1.6s ease-in-out infinite;
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Admin shell tokens (shadcn/ui) — additive only, nothing above is edited */
 /* except --color-card, repointed from a literal to var(--card) so it can */

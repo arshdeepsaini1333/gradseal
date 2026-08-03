@@ -3,14 +3,11 @@ import { courses } from "@/lib/data";
 import type {
   DashboardStat,
   ContinueLearningCourse,
-  CartSummary,
   NotificationSummary,
   Certificate,
   TestItem,
   AssignmentItem,
   WishlistItem,
-  CartItem,
-  OrderItem,
   NotificationItem,
 } from "@/types/dashboard";
 
@@ -86,7 +83,6 @@ export const continueLearningCourses: ContinueLearningCourse[] = [
   },
 ];
 
-export const mockCartSummary: CartSummary = { itemCount: 2 };
 export const mockNotificationSummary: NotificationSummary = { unreadCount: 3 };
 
 export const trendingCourses = [...courses]
@@ -179,51 +175,6 @@ export const wishlistItems: WishlistItem[] = courses.slice(3, 6).map((course) =>
   price: 2999,
   rating: course.rating,
 }));
-
-export const cartItems: CartItem[] = [
-  {
-    id: "1",
-    slug: "certified-personal-trainer",
-    title: "Certified Personal Trainer",
-    category: "Personal Training",
-    price: 4999,
-    originalPrice: 6999,
-  },
-  {
-    id: "3",
-    slug: courses[2]?.slug ?? "yoga-instructor-certification",
-    title: courses[2]?.title ?? "Yoga Instructor Certification",
-    category: courses[2]?.category ?? "Yoga",
-    price: 3499,
-  },
-];
-
-export const orderItems: OrderItem[] = [
-  {
-    id: "order1",
-    orderNumber: "GS-ORD-10234",
-    date: "2025-11-01",
-    items: ["Personal Trainer Fundamentals"],
-    total: 4999,
-    status: "completed",
-  },
-  {
-    id: "order2",
-    orderNumber: "GS-ORD-10198",
-    date: "2025-09-14",
-    items: ["Yoga Instructor Certification", "Sports Nutrition Essentials"],
-    total: 7498,
-    status: "completed",
-  },
-  {
-    id: "order3",
-    orderNumber: "GS-ORD-10261",
-    date: "2026-07-05",
-    items: ["Nutrition Coach Certification"],
-    total: 3999,
-    status: "processing",
-  },
-];
 
 export const notificationItems: NotificationItem[] = [
   {

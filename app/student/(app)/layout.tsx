@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { getStudentSession } from "@/lib/auth/session";
 import { getStudentProfile } from "@/lib/students";
 import { getProfileCompletion } from "@/lib/profile-completion";
+import { getCartCount } from "@/lib/cart";
 import AuthenticatedNavbar from "@/components/navbar/AuthenticatedNavbar";
 import DashboardSidebar from "@/components/sidebar/DashboardSidebar";
-import { mockCartSummary, mockNotificationSummary } from "@/lib/mock-dashboard-data";
+import { mockNotificationSummary } from "@/lib/mock-dashboard-data";
 
 export const metadata: Metadata = { title: "Student Dashboard – GradSeal" };
 
@@ -16,14 +17,17 @@ export default async function StudentAppLayout({ children }: { children: ReactNo
     redirect("/student/login");
   }
 
-  const profile = await getStudentProfile();
+  const [profile, cartItemCount] = await Promise.all([
+    getStudentProfile(),
+    getCartCount(student.id),
+  ]);
   const profileCompletionPercent = profile ? getProfileCompletion(profile).percent : 0;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <AuthenticatedNavbar
         student={student}
-        cartItemCount={mockCartSummary.itemCount}
+        cartItemCount={cartItemCount}
         unreadNotificationCount={mockNotificationSummary.unreadCount}
         profileCompletionPercent={profileCompletionPercent}
       />
