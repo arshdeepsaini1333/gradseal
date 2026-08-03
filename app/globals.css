@@ -87,6 +87,34 @@ html {
   display: none;
 }
 
+@keyframes dialog-overlay-show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-content-show {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.dialog-overlay[data-state="open"] {
+  animation: dialog-overlay-show 150ms ease-out;
+}
+
+.dialog-content[data-state="open"] {
+  animation: dialog-content-show 150ms ease-out;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Admin shell tokens (shadcn/ui) — additive only, nothing above is edited */
 /* except --color-card, repointed from a literal to var(--card) so it can */

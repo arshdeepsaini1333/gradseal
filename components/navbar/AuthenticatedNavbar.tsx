@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ChevronDown, ShoppingCart, Bell } from "lucide-react";
+import { ChevronDown, ShoppingCart, Bell } from "lucide-react";
 import type { SessionStudent } from "@/lib/auth/session";
 import ProfileDropdown from "@/components/navbar/ProfileDropdown";
 
@@ -24,7 +24,6 @@ export default function AuthenticatedNavbar({
 }: AuthenticatedNavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [search, setSearch] = useState("");
   const pathname = usePathname();
 
   useEffect(() => {
@@ -71,22 +70,6 @@ export default function AuthenticatedNavbar({
             Categories
             <ChevronDown className="w-4 h-4" aria-hidden="true" />
           </button>
-        </div>
-
-        <div className="hidden md:flex flex-1 max-w-md">
-          <label className="relative w-full">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search courses, instructors, certificates"
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#F8FAFC] border border-slate-200 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#2563EB]"
-            />
-          </label>
         </div>
 
         {/* Right section */}
@@ -168,19 +151,6 @@ export default function AuthenticatedNavbar({
             className="md:hidden bg-white border-t border-slate-100 overflow-hidden"
           >
             <div className="px-4 py-4 flex flex-col gap-1">
-              <label className="relative w-full mb-2">
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]"
-                  aria-hidden="true"
-                />
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search courses, instructors, certificates"
-                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#F8FAFC] border border-slate-200 text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40"
-                />
-              </label>
               <Link
                 href="/courses"
                 className="px-4 py-3 rounded-lg text-sm font-medium text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors"

@@ -151,6 +151,7 @@ model Student {
   orders           Order[]
   certificates     Certificate[]
   lessonProgresses LessonProgress[]
+  quizAttempts     QuizAttempt[]
   sessions         StudentSession[]
   cartItems        CartItem[]
 
@@ -267,8 +268,9 @@ model Lesson {
   moduleId String @map("module_id")
   module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
-  progresses LessonProgress[]
-  test       Test?
+  progresses              LessonProgress[]
+  test                    Test?
+  lastAccessedEnrollments Enrollment[]
 
   @@index([moduleId, position])
   @@map("lessons")
@@ -287,6 +289,7 @@ model Test {
   lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   questions Question[]
+  attempts  QuizAttempt[]
 
   @@map("tests")
 }
@@ -404,11 +407,17 @@ model Enrollment {
   completedAt DateTime? @map("completed_at")
   enrolledAt  DateTime  @default(now()) @map("enrolled_at")
 
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  // Where to resume "Continue Learning" — the last lesson the student opened.
+  lastLessonId   String?   @map("last_lesson_id")
+  lastAccessedAt DateTime? @map("last_accessed_at")
+
+  student    Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course     Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lastLesson Lesson? @relation(fields: [lastLessonId], references: [id], onDelete: SetNull)
 
   @@unique([studentId, courseId])
   @@index([courseId])
+  @@index([lastLessonId])
   @@map("enrollments")
 }
 
@@ -418,8 +427,13 @@ model LessonProgress {
   lessonId  String @map("lesson_id")
   studentId String @map("student_id")
 
+  // `watched` means the student clicked "Mark Lesson Complete" (reached the
+  // bottom of the content), not merely that they opened it.
   watched   Boolean   @default(false)
   watchedAt DateTime? @map("watched_at")
+
+  // Highest scroll percentage reached, for resuming exactly where left off.
+  scrollPercent Int @default(0) @map("scroll_percent")
 
   lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -427,6 +441,30 @@ model LessonProgress {
   @@unique([lessonId, studentId])
   @@index([studentId])
   @@map("lesson_progresses")
+}
+
+// A single quiz submission. Retries create additional rows rather than
+// overwriting — "latest"/"best passing" attempts are queried, not enforced
+// by a unique constraint.
+model QuizAttempt {
+  id String @id @default(cuid())
+
+  testId    String @map("test_id")
+  studentId String @map("student_id")
+
+  score  Int     // percent, 0-100
+  passed Boolean
+
+  // question id -> chosen option id, for audit/review.
+  answers Json
+
+  attemptedAt DateTime @default(now()) @map("attempted_at")
+
+  test    Test    @relation(fields: [testId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([testId, studentId])
+  @@map("quiz_attempts")
 }
 
 model Certificate {

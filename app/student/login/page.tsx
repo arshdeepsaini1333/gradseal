@@ -8,7 +8,7 @@ import { getStudentSession } from "@/lib/auth/session";
 export const metadata: Metadata = { title: "Student Login – GradSeal" };
 
 interface StudentLoginPageProps {
-  searchParams: Promise<{ verified?: string; error?: string }>;
+  searchParams: Promise<{ verified?: string; error?: string; forgot?: string }>;
 }
 
 export default async function StudentLoginPage({ searchParams }: StudentLoginPageProps) {
@@ -17,14 +17,18 @@ export default async function StudentLoginPage({ searchParams }: StudentLoginPag
     redirect("/student/dashboard");
   }
 
-  const { verified, error } = await searchParams;
+  const { verified, error, forgot } = await searchParams;
 
   return (
     <>
       <Navbar />
       <main className="flex-1 bg-[#F8FAFC] pt-28 pb-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <StudentLoginForm justVerified={verified === "1"} oauthError={error} />
+          <StudentLoginForm
+            justVerified={verified === "1"}
+            oauthError={error}
+            openForgotPassword={forgot === "1"}
+          />
         </div>
       </main>
       <Footer />

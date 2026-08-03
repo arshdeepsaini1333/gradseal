@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import EnrolledCourseCard from "@/components/dashboard/EnrolledCourseCard";
-import { continueLearningCourses } from "@/lib/mock-dashboard-data";
+import { getStudentSession } from "@/lib/auth/session";
+import { getEnrolledCourses } from "@/lib/enrollments";
 
 export const metadata: Metadata = { title: "My Learning – GradSeal" };
 
-export default function MyLearningPage() {
-  const courses = continueLearningCourses;
+export default async function MyLearningPage() {
+  const student = await getStudentSession();
+  if (!student) {
+    redirect("/student/login");
+  }
+
+  const courses = await getEnrolledCourses(student.id);
 
   return (
     <div className="space-y-6">

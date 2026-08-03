@@ -65,6 +65,21 @@ export function createPasswordOtpEmailTemplate({
   };
 }
 
+export function resetPasswordOtpEmailTemplate({
+  firstName,
+  otp,
+  expiryMinutes,
+}: OtpEmailParams): { subject: string; html: string } {
+  return {
+    subject: `Your GradSeal verification code: ${otp}`,
+    html: otpEmailShell(
+      "Reset your password",
+      `Hi ${firstName}, use the code below to verify it's you before resetting your GradSeal password. This code expires in ${expiryMinutes} minutes. If you didn't request this, someone may be trying to access your account — you can safely ignore this email and your password will stay unchanged.`,
+      otpDigitsTable(otp)
+    ),
+  };
+}
+
 export function loginOtpEmailTemplate({
   firstName,
   otp,

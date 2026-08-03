@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import PasswordField from "@/components/auth/PasswordField";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import ForgotPasswordModal from "@/components/auth/ForgotPasswordModal";
 import { loginStudent } from "@/actions/auth";
 import { studentLoginSchema } from "@/lib/validations/student-login";
 
@@ -23,9 +24,14 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
 interface StudentLoginFormProps {
   justVerified?: boolean;
   oauthError?: string;
+  openForgotPassword?: boolean;
 }
 
-export default function StudentLoginForm({ justVerified = false, oauthError }: StudentLoginFormProps) {
+export default function StudentLoginForm({
+  justVerified = false,
+  oauthError,
+  openForgotPassword = false,
+}: StudentLoginFormProps) {
   const [state, formAction, isPending] = useActionState(loginStudent, undefined);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -108,12 +114,7 @@ export default function StudentLoginForm({ justVerified = false, oauthError }: S
               error={fieldErrors.password}
             />
             <div className="mt-2 text-right">
-              <Link
-                href="/student/forgot-password"
-                className="text-sm font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors"
-              >
-                Forgot your password?
-              </Link>
+              <ForgotPasswordModal defaultOpen={openForgotPassword} />
             </div>
           </div>
 
