@@ -100,7 +100,13 @@ export default function LessonView({ courseSlug, lesson }: LessonViewProps) {
         </div>
       </header>
 
-      <div ref={contentRef} className="max-w-none">
+      <div
+        ref={contentRef}
+        className="max-w-none select-none"
+        onCopy={(e) => e.preventDefault()}
+        onCut={(e) => e.preventDefault()}
+        onContextMenu={(e) => e.preventDefault()}
+      >
         {lesson.videoUrl && (
           <video src={lesson.videoUrl} controls className="mb-6 w-full rounded-2xl bg-black" />
         )}

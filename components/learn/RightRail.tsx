@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { Clock, Lock } from "lucide-react";
 import Button from "@/components/ui/Button";
+import PrepareCertificateButton from "@/components/certificates/PrepareCertificateButton";
 import type { LearnerCourse, LearnerLessonDetail } from "@/types/learning";
 
 interface RightRailProps {
   course: LearnerCourse;
   lesson: LearnerLessonDetail;
+  studentName: string;
 }
 
-export default function RightRail({ course, lesson }: RightRailProps) {
+export default function RightRail({ course, lesson, studentName }: RightRailProps) {
   const flatLessons = course.modules.flatMap((mod) => mod.lessons);
   const remainingMinutes = flatLessons
     .filter((l) => !l.completed)
@@ -53,8 +55,17 @@ export default function RightRail({ course, lesson }: RightRailProps) {
               <Lock className="w-4 h-4" aria-hidden="true" /> Next Lesson
             </Button>
           )
+        ) : canAdvance ? (
+          <PrepareCertificateButton
+            courseId={course.id}
+            defaultName={studentName}
+            certificateNumber={course.certificateNumber}
+            className="w-full"
+          />
         ) : (
-          <p className="text-sm text-[#64748B]">This is the last lesson in the course.</p>
+          <p className="text-sm text-[#64748B]">
+            Finish this lesson{lesson.hasQuiz ? " and its quiz" : ""} to complete the course.
+          </p>
         )}
       </div>
 

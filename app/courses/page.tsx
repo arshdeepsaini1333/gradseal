@@ -14,6 +14,8 @@ import FAQSection from "@/components/courses/FAQSection";
 import CTASection from "@/components/courses/CTASection";
 import { CourseFilterProvider } from "@/components/courses/CourseFilterProvider";
 import { getPublishedCourses, getCatalogCategories } from "@/lib/courses";
+import { getStudentSession } from "@/lib/auth/session";
+import { getWishlistedCourseIds } from "@/lib/wishlist";
 
 export const metadata: Metadata = {
   title: "All Courses – GradSeal",
@@ -22,7 +24,12 @@ export const metadata: Metadata = {
 };
 
 export default async function CoursesPage() {
-  const [courses, categories] = await Promise.all([getPublishedCourses(), getCatalogCategories()]);
+  const student = await getStudentSession();
+  const [courses, categories, wishlistedCourseIds] = await Promise.all([
+    getPublishedCourses(),
+    getCatalogCategories(),
+    student ? getWishlistedCourseIds(student.id) : Promise.resolve([]),
+  ]);
 
   return (
     <>
@@ -31,7 +38,11 @@ export default async function CoursesPage() {
         <HeroSection />
         <CourseFilterProvider courses={courses}>
           <CategorySection categories={categories} />
-          <FeaturedCourses courses={courses} />
+          <FeaturedCourses
+            courses={courses}
+            isLoggedIn={!!student}
+            wishlistedCourseIds={wishlistedCourseIds}
+          />
           <LearningPaths />
         </CourseFilterProvider>
         <ComparisonSection />

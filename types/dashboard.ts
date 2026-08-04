@@ -17,10 +17,6 @@ export interface ContinueLearningCourse {
   progressPercent: number;
 }
 
-export interface NotificationSummary {
-  unreadCount: number;
-}
-
 export interface SidebarNavItem {
   label: string;
   href: string;
@@ -54,22 +50,4 @@ export interface AssignmentItem {
   dueDate: string;
   status: "pending" | "submitted" | "graded";
   grade?: string;
-}
-
-export interface WishlistItem {
-  id: string;
-  slug: string;
-  title: string;
-  category: string;
-  price: number;
-  rating: number;
-}
-
-export interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-  type: "info" | "success" | "warning" | "order";
 }

@@ -8,15 +8,14 @@ import { Search, ShieldCheck, ShieldX, Loader2, Copy, Check, ExternalLink, Badge
 import { verifyCertificateNumber, type VerifyCertificateResult } from "@/app/certificates/verify/actions";
 import { levelLabel } from "@/components/courses/courseFormat";
 
-const MAX_LENGTH = 10;
+const MAX_LENGTH = 12;
 
 function formatForDisplay(value: string): string {
-  if (value.length <= 5) return value;
-  return `${value.slice(0, 5)}-${value.slice(5)}`;
+  return value.replace(/(\d{4})(?=\d)/g, "$1-");
 }
 
 function sanitizeInput(value: string): string {
-  return value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, MAX_LENGTH);
+  return value.replace(/\D/g, "").slice(0, MAX_LENGTH);
 }
 
 export default function VerifyCertificateForm() {
@@ -66,14 +65,13 @@ export default function VerifyCertificateForm() {
           <input
             id={inputId}
             type="text"
-            inputMode="text"
+            inputMode="numeric"
             autoComplete="off"
-            autoCapitalize="characters"
             spellCheck={false}
-            placeholder="e.g. GS7X9-K2P4Q"
+            placeholder="e.g. 1234-5678-9012"
             value={formatForDisplay(rawValue)}
             onChange={(e) => setRawValue(sanitizeInput(e.target.value))}
-            className="flex-1 px-4 py-3.5 rounded-xl border-2 border-slate-200 bg-[#F8FAFC] text-[#0F172A] font-mono text-lg tracking-[0.15em] uppercase placeholder:tracking-normal placeholder:font-sans placeholder:text-base placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors"
+            className="flex-1 px-4 py-3.5 rounded-xl border-2 border-slate-200 bg-[#F8FAFC] text-[#0F172A] font-mono text-lg tracking-[0.15em] placeholder:tracking-normal placeholder:font-sans placeholder:text-base placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors"
           />
           <button
             type="submit"
@@ -85,7 +83,7 @@ export default function VerifyCertificateForm() {
           </button>
         </div>
         <p className="mt-2.5 text-xs text-[#94A3B8]">
-          A 10-character code found at the bottom of every GradSeal certificate.
+          A 12-digit number found at the bottom of every GradSeal certificate.
         </p>
       </motion.form>
 
@@ -100,7 +98,7 @@ export default function VerifyCertificateForm() {
           >
             <ShieldX className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <p className="text-sm text-amber-800">
-              That doesn&apos;t look like a valid certificate number. It should be exactly 10 letters and digits.
+              That doesn&apos;t look like a valid certificate number. It should be exactly 12 digits.
             </p>
           </motion.div>
         )}
@@ -190,7 +188,7 @@ export default function VerifyCertificateForm() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between text-xs text-[#64748B] border-t border-slate-100 pt-4 mt-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-3 text-xs text-[#64748B] border-t border-slate-100 pt-4 mt-2">
                     <div>
                       <button
                         type="button"
@@ -206,7 +204,6 @@ export default function VerifyCertificateForm() {
                       </button>
                       <p>Certificate ID</p>
                     </div>
-                    <div className="w-px h-8 bg-slate-200" />
                     <div>
                       <p className="font-medium text-[#0F172A]">
                         {new Date(result.certificate.issuedAt).toLocaleDateString("en-IN", {
@@ -217,7 +214,10 @@ export default function VerifyCertificateForm() {
                       </p>
                       <p>Issue Date</p>
                     </div>
-                    <div className="w-px h-8 bg-slate-200" />
+                    <div>
+                      <p className="font-medium text-[#0F172A]">{result.certificate.overallScore}%</p>
+                      <p>Overall Score</p>
+                    </div>
                     <div>
                       <p className="font-medium text-emerald-600">✓ Verified</p>
                       <p>Status</p>

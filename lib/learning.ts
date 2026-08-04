@@ -65,7 +65,7 @@ async function loadCourseTree(slug: string, studentId: string) {
 function buildLearnerCourse(
   course: CourseTree,
   enrollment: { progress: number; completed: boolean; lastLessonId: string | null }
-): LearnerCourse {
+): Omit<LearnerCourse, "certificateNumber"> {
   const flatLessons = course.modules.flatMap((mod) => mod.lessons);
 
   const lessonById = new Map<string, LearnerLesson>();
@@ -144,7 +144,12 @@ export async function getCourseForLearner(
   });
   if (!enrollment) return null;
 
-  return buildLearnerCourse(course, enrollment);
+  const certificate = await prisma.certificate.findUnique({
+    where: { studentId_courseId: { studentId, courseId: course.id } },
+    select: { certificateNumber: true },
+  });
+
+  return { ...buildLearnerCourse(course, enrollment), certificateNumber: certificate?.certificateNumber ?? null };
 }
 
 /**
@@ -213,13 +218,19 @@ export async function computeEnrollmentProgress(
   studentId: string,
   courseId: string
 ): Promise<{ progress: number; completed: boolean }> {
-  const [totalLessons, completedLessons] = await Promise.all([
+  const [totalLessons, completedLessons, totalTests, passedTests] = await Promise.all([
     prisma.lesson.count({ where: { module: { courseId } } }),
     prisma.lessonProgress.count({
       where: { studentId, watched: true, lesson: { module: { courseId } } },
     }),
+    prisma.test.count({ where: { lesson: { module: { courseId } } } }),
+    prisma.test.count({
+      where: { lesson: { module: { courseId } }, attempts: { some: { studentId, passed: true } } },
+    }),
   ]);
 
   const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-  return { progress, completed: totalLessons > 0 && completedLessons === totalLessons };
+  const completed =
+    totalLessons > 0 && completedLessons === totalLessons && passedTests === totalTests;
+  return { progress, completed };
 }

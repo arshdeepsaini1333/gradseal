@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ShoppingCart, Bell } from "lucide-react";
+import { ShoppingCart, Bell } from "lucide-react";
 import type { SessionStudent } from "@/lib/auth/session";
 import ProfileDropdown from "@/components/navbar/ProfileDropdown";
 
@@ -55,7 +55,7 @@ export default function AuthenticatedNavbar({
           />
         </Link>
 
-        {/* Left: browse + categories + search */}
+        {/* Left: browse + search */}
         <div className="hidden md:flex items-center gap-1 shrink-0">
           <Link
             href="/courses"
@@ -63,13 +63,6 @@ export default function AuthenticatedNavbar({
           >
             Browse Courses
           </Link>
-          <button
-            type="button"
-            className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors"
-          >
-            Categories
-            <ChevronDown className="w-4 h-4" aria-hidden="true" />
-          </button>
         </div>
 
         {/* Right section */}
@@ -157,13 +150,6 @@ export default function AuthenticatedNavbar({
               >
                 Browse Courses
               </Link>
-              <button
-                type="button"
-                className="flex items-center gap-1 px-4 py-3 rounded-lg text-sm font-medium text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors text-left"
-              >
-                Categories
-                <ChevronDown className="w-4 h-4" aria-hidden="true" />
-              </button>
               <Link
                 href="/student/my-learning"
                 className="px-4 py-3 rounded-lg text-sm font-medium text-[#0F172A] hover:text-[#2563EB] hover:bg-blue-50 transition-colors"

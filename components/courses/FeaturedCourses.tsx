@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Heart, Clock, BookOpen, Award } from "lucide-react";
+import { Clock, BookOpen, Award } from "lucide-react";
 import { formatPrice, discountPercent, levelLabel } from "./courseFormat";
+import WishlistButton from "./WishlistButton";
 import type { CatalogCourse } from "@/lib/courses";
 
 const levelColors: Record<string, string> = {
@@ -14,8 +14,17 @@ const levelColors: Record<string, string> = {
   Advanced: "bg-red-100 text-red-700",
 };
 
-function FeaturedCard({ course, index }: { course: CatalogCourse; index: number }) {
-  const [wishlisted, setWishlisted] = useState(false);
+function FeaturedCard({
+  course,
+  index,
+  isLoggedIn,
+  wishlisted,
+}: {
+  course: CatalogCourse;
+  index: number;
+  isLoggedIn: boolean;
+  wishlisted: boolean;
+}) {
   const level = levelLabel[course.level];
   const salePrice = course.discountedPrice ?? course.price;
   const discount = discountPercent(salePrice, course.price);
@@ -48,14 +57,13 @@ function FeaturedCard({ course, index }: { course: CatalogCourse; index: number 
           ))}
         </div>
 
-        <button
-          onClick={() => setWishlisted((v) => !v)}
-          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          aria-pressed={wishlisted}
+        <WishlistButton
+          courseId={course.id}
+          courseSlug={course.slug}
+          isLoggedIn={isLoggedIn}
+          initialWishlisted={wishlisted}
           className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
-        >
-          <Heart className={`w-4 h-4 ${wishlisted ? "fill-rose-500 text-rose-500" : "text-[#64748B]"}`} />
-        </button>
+        />
 
         <div className="absolute bottom-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 text-[#2563EB] text-[11px] font-semibold shadow-sm">
           <Award className="w-3 h-3" />
@@ -113,11 +121,17 @@ function FeaturedCard({ course, index }: { course: CatalogCourse; index: number 
 export default function FeaturedCourses({
   courses,
   viewAllHref,
+  isLoggedIn = false,
+  wishlistedCourseIds = [],
 }: {
   courses: CatalogCourse[];
   viewAllHref?: string;
+  isLoggedIn?: boolean;
+  wishlistedCourseIds?: string[];
 }) {
   if (courses.length === 0) return null;
+
+  const wishlistedSet = new Set(wishlistedCourseIds);
 
   return (
     <section className="py-24 bg-[#F8FAFC]">
@@ -153,7 +167,13 @@ export default function FeaturedCourses({
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {courses.map((course, index) => (
-            <FeaturedCard key={course.id} course={course} index={index} />
+            <FeaturedCard
+              key={course.id}
+              course={course}
+              index={index}
+              isLoggedIn={isLoggedIn}
+              wishlisted={wishlistedSet.has(course.id)}
+            />
           ))}
         </div>
       </div>

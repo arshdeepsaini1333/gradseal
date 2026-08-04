@@ -4,9 +4,15 @@ import type { Course } from "@/types";
 
 interface DiscoverCoursesSectionProps {
   courses: Course[];
+  wishlistedCourseIds?: string[];
 }
 
-export default function DiscoverCoursesSection({ courses }: DiscoverCoursesSectionProps) {
+export default function DiscoverCoursesSection({
+  courses,
+  wishlistedCourseIds = [],
+}: DiscoverCoursesSectionProps) {
+  const wishlistedSet = new Set(wishlistedCourseIds);
+
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -24,7 +30,12 @@ export default function DiscoverCoursesSection({ courses }: DiscoverCoursesSecti
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <DashboardCourseCard key={course.id} course={course} badge="New to You" />
+          <DashboardCourseCard
+            key={course.id}
+            course={course}
+            badge="New to You"
+            wishlisted={wishlistedSet.has(course.id)}
+          />
         ))}
       </div>
     </section>

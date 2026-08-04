@@ -8,8 +8,6 @@ import {
   Award,
   Heart,
   Receipt,
-  ClipboardList,
-  FileCheck2,
   Settings,
   LifeBuoy,
   LogOut,
@@ -37,8 +35,6 @@ const menuLinks = [
   { label: "My Certificates", href: "/student/certificates", icon: Award },
   { label: "My Wishlist", href: "/student/wishlist", icon: Heart },
   { label: "Purchase History", href: "/student/orders", icon: Receipt },
-  { label: "Quiz/Test Results", href: "/student/tests", icon: ClipboardList },
-  { label: "Assignments", href: "/student/assignments", icon: FileCheck2 },
   { label: "Settings", href: "/student/settings", icon: Settings },
   { label: "Help & Support", href: "/student/support", icon: LifeBuoy },
 ];

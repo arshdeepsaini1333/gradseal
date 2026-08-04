@@ -8,7 +8,6 @@
 //   linked to Order via an optional `couponId` FK.
 // - Reviews: `Review` model keyed by `@@unique([studentId, courseId])`, same
 //   shape as Enrollment.
-// - Wishlist: simple join table `@@unique([studentId, courseId])`.
 // - Announcements: `courseId` + message + timestamps.
 // - Discussion forums: `Thread` / `Post` models keyed by `courseId` or `lessonId`.
 
@@ -147,13 +146,15 @@ model Student {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  enrollments      Enrollment[]
-  orders           Order[]
-  certificates     Certificate[]
-  lessonProgresses LessonProgress[]
-  quizAttempts     QuizAttempt[]
-  sessions         StudentSession[]
-  cartItems        CartItem[]
+  enrollments       Enrollment[]
+  orders            Order[]
+  certificates      Certificate[]
+  lessonProgresses  LessonProgress[]
+  quizAttempts      QuizAttempt[]
+  sessions          StudentSession[]
+  cartItems         CartItem[]
+  notificationReads NotificationRead[]
+  wishlistItems     Wishlist[]
 
   @@index([isVerified])
   @@map("students")
@@ -227,11 +228,13 @@ model Course {
   uploadedById String @map("uploaded_by_id")
   uploadedBy   Admin  @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
 
-  modules      Module[]
-  enrollments  Enrollment[]
-  certificates Certificate[]
-  orderItems   OrderItem[]
-  cartItems    CartItem[]
+  modules       Module[]
+  enrollments   Enrollment[]
+  certificates  Certificate[]
+  orderItems    OrderItem[]
+  cartItems     CartItem[]
+  notifications Notification[]
+  wishlistedBy  Wishlist[]
 
   @@index([uploadedById])
   @@index([isPublished, isFeatured])
@@ -391,6 +394,24 @@ model CartItem {
   @@map("cart_items")
 }
 
+// A student's saved-for-later list: one row per course they've liked, from
+// anywhere a wishlist heart appears (home, the course catalog, the dashboard).
+model Wishlist {
+  id String @id @default(cuid())
+
+  studentId String @map("student_id")
+  courseId  String @map("course_id")
+
+  addedAt DateTime @default(now()) @map("added_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@map("wishlists")
+}
+
 // ---------------------------------------------------------------------------
 // Learning
 // ---------------------------------------------------------------------------
@@ -477,10 +498,52 @@ model Certificate {
   certificateUrl String   @map("certificate_url")
   issuedAt       DateTime @default(now()) @map("issued_at")
 
+  // Overall score (0-100) across all of the course's tests at the time of issuance.
+  overallScore Int @default(100) @map("overall_score")
+
+  // The name the student typed in when preparing their certificate — printed on the
+  // document verbatim. Captured once and never editable after that.
+  certificateName String @map("certificate_name")
+
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
   course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, courseId])
   @@index([courseId])
   @@map("certificates")
+}
+
+// A broadcast notification shown to every student (e.g. "a new course was added").
+// Per-student read state lives in NotificationRead rather than on this row.
+model Notification {
+  id String @id @default(cuid())
+
+  title   String
+  message String
+
+  // Optional deep link — set when the notification is about a specific course.
+  courseId String? @map("course_id")
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  reads NotificationRead[]
+
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationRead {
+  id String @id @default(cuid())
+
+  notificationId String   @map("notification_id")
+  studentId      String   @map("student_id")
+  readAt         DateTime @default(now()) @map("read_at")
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, studentId])
+  @@index([studentId])
+  @@map("notification_reads")
 }

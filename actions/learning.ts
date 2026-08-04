@@ -133,6 +133,17 @@ export async function submitQuiz(input: unknown): Promise<QuizResult> {
     },
   });
 
+  if (passed) {
+    const { completed } = await computeEnrollmentProgress(session.id, access.courseId);
+    if (completed) {
+      // `completed: false` guard keeps completedAt from drifting forward on later quiz retakes.
+      await prisma.enrollment.updateMany({
+        where: { studentId: session.id, courseId: access.courseId, completed: false },
+        data: { completed: true, completedAt: new Date() },
+      });
+    }
+  }
+
   revalidateLearnSurfaces(test.lesson.module.course.slug);
 
   return { score, passed, passingScore: test.passingScore };

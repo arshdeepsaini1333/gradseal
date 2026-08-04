@@ -7,7 +7,7 @@ import { getProfileCompletion } from "@/lib/profile-completion";
 import { getCartCount } from "@/lib/cart";
 import AuthenticatedNavbar from "@/components/navbar/AuthenticatedNavbar";
 import DashboardSidebar from "@/components/sidebar/DashboardSidebar";
-import { mockNotificationSummary } from "@/lib/mock-dashboard-data";
+import { getUnreadNotificationCount } from "@/lib/notifications";
 
 export const metadata: Metadata = { title: "Student Dashboard – GradSeal" };
 
@@ -17,9 +17,10 @@ export default async function StudentAppLayout({ children }: { children: ReactNo
     redirect("/student/login");
   }
 
-  const [profile, cartItemCount] = await Promise.all([
+  const [profile, cartItemCount, unreadNotificationCount] = await Promise.all([
     getStudentProfile(),
     getCartCount(student.id),
+    getUnreadNotificationCount(student.id),
   ]);
   const profileCompletionPercent = profile ? getProfileCompletion(profile).percent : 0;
 
@@ -28,7 +29,7 @@ export default async function StudentAppLayout({ children }: { children: ReactNo
       <AuthenticatedNavbar
         student={student}
         cartItemCount={cartItemCount}
-        unreadNotificationCount={mockNotificationSummary.unreadCount}
+        unreadNotificationCount={unreadNotificationCount}
         profileCompletionPercent={profileCompletionPercent}
       />
       <div className="pt-16">

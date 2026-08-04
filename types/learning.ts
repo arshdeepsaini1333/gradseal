@@ -36,6 +36,7 @@ export interface LearnerCourse {
   progressPercent: number;
   completed: boolean;
   resumeLessonId: string | null;
+  certificateNumber: string | null;
 }
 
 export interface QuizOptionForClient {

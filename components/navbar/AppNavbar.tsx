@@ -4,7 +4,7 @@ import { getProfileCompletion } from "@/lib/profile-completion";
 import { getCartCount } from "@/lib/cart";
 import Navbar from "@/components/Navbar";
 import AuthenticatedNavbar from "@/components/navbar/AuthenticatedNavbar";
-import { mockNotificationSummary } from "@/lib/mock-dashboard-data";
+import { getUnreadNotificationCount } from "@/lib/notifications";
 
 export default async function AppNavbar() {
   const student = await getStudentSession();
@@ -13,9 +13,10 @@ export default async function AppNavbar() {
     return <Navbar />;
   }
 
-  const [profile, cartItemCount] = await Promise.all([
+  const [profile, cartItemCount, unreadNotificationCount] = await Promise.all([
     getStudentProfile(),
     getCartCount(student.id),
+    getUnreadNotificationCount(student.id),
   ]);
   const profileCompletionPercent = profile ? getProfileCompletion(profile).percent : 0;
 
@@ -23,7 +24,7 @@ export default async function AppNavbar() {
     <AuthenticatedNavbar
       student={student}
       cartItemCount={cartItemCount}
-      unreadNotificationCount={mockNotificationSummary.unreadCount}
+      unreadNotificationCount={unreadNotificationCount}
       profileCompletionPercent={profileCompletionPercent}
     />
   );

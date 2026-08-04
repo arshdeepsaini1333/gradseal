@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { CourseLevel } from "@/generated/prisma/enums";
+import type { Course as DashboardCourse } from "@/types";
 
 export type CatalogCourse = {
   id: string;
@@ -31,6 +32,69 @@ export async function getPublishedCourses(): Promise<CatalogCourse[]> {
     price: Number(course.price),
     discountedPrice: course.discountedPrice ? Number(course.discountedPrice) : null,
   }));
+}
+
+function mapCourseLevel(level: CourseLevel): DashboardCourse["difficulty"] {
+  if (level === "BEGINNER") return "Beginner";
+  if (level === "INTERMEDIATE") return "Intermediate";
+  return "Advanced";
+}
+
+function toDashboardCourse(course: CatalogCourse & { enrollmentCount: number }): DashboardCourse {
+  return {
+    id: course.id,
+    slug: course.slug,
+    title: course.title,
+    description: course.shortDescription,
+    duration: course.duration,
+    difficulty: mapCourseLevel(course.level),
+    rating: 0,
+    reviewCount: 0,
+    image: course.thumbnail,
+    category: course.categories[0]?.name ?? "General",
+    hasCertificate: true,
+    purchaseCount: course.enrollmentCount,
+    createdAt: course.createdAt.toISOString(),
+  };
+}
+
+export type DashboardCourseSections = {
+  discover: DashboardCourse[];
+  trending: DashboardCourse[];
+  recentlyAdded: DashboardCourse[];
+};
+
+/** Only real, published DB courses — no mock/placeholder data — split into the three dashboard sections. */
+export async function getDashboardCourseSections(): Promise<DashboardCourseSections> {
+  const courses = await prisma.course.findMany({
+    where: { isPublished: true },
+    include: {
+      categories: true,
+      _count: { select: { enrollments: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const mapped = courses.map((course) =>
+    toDashboardCourse({
+      ...course,
+      price: Number(course.price),
+      discountedPrice: course.discountedPrice ? Number(course.discountedPrice) : null,
+      enrollmentCount: course._count.enrollments,
+    }),
+  );
+
+  const trending = [...mapped].sort((a, b) => b.purchaseCount - a.purchaseCount).slice(0, 3);
+  const trendingIds = new Set(trending.map((course) => course.id));
+  const nonTrending = mapped.filter((course) => !trendingIds.has(course.id));
+  // Small catalogs can have every course already claimed by "Trending" — fall back to
+  // showing all courses here too rather than leaving the section empty.
+  const discover = (nonTrending.length > 0 ? nonTrending : mapped).slice(0, 3);
+  const recentlyAdded = [...mapped]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3);
+
+  return { discover, trending, recentlyAdded };
 }
 
 export async function getFeaturedCourses(limit = 8): Promise<CatalogCourse[]> {

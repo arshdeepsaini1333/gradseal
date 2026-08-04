@@ -5,7 +5,8 @@ import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import DiscoverCoursesSection from "@/components/dashboard/DiscoverCoursesSection";
 import TrendingCoursesSection from "@/components/dashboard/TrendingCoursesSection";
 import RecentlyAddedSection from "@/components/dashboard/RecentlyAddedSection";
-import { discoverCourses, trendingCourses, recentlyAddedCourses } from "@/lib/mock-dashboard-data";
+import { getDashboardCourseSections } from "@/lib/courses";
+import { getWishlistedCourseIds } from "@/lib/wishlist";
 
 export const metadata: Metadata = { title: "Dashboard – GradSeal" };
 
@@ -15,6 +16,11 @@ export default async function StudentDashboardPage() {
     redirect("/student/login");
   }
 
+  const [{ discover, trending, recentlyAdded }, wishlistedCourseIds] = await Promise.all([
+    getDashboardCourseSections(),
+    getWishlistedCourseIds(student.id),
+  ]);
+
   return (
     <div className="space-y-10">
       <WelcomeSection
@@ -23,9 +29,9 @@ export default async function StudentDashboardPage() {
         email={student.email}
         profileImage={student.profileImage}
       />
-      <DiscoverCoursesSection courses={discoverCourses} />
-      <TrendingCoursesSection courses={trendingCourses} />
-      <RecentlyAddedSection courses={recentlyAddedCourses} />
+      <DiscoverCoursesSection courses={discover} wishlistedCourseIds={wishlistedCourseIds} />
+      <TrendingCoursesSection courses={trending} wishlistedCourseIds={wishlistedCourseIds} />
+      <RecentlyAddedSection courses={recentlyAdded} wishlistedCourseIds={wishlistedCourseIds} />
     </div>
   );
 }

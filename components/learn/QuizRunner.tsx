@@ -72,7 +72,12 @@ export default function QuizRunner({ quiz, onPassed }: QuizRunnerProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6 sm:p-8 shadow-sm">
+    <div
+      className="rounded-2xl border border-slate-100 bg-white p-6 sm:p-8 shadow-sm select-none"
+      onCopy={(e) => e.preventDefault()}
+      onCut={(e) => e.preventDefault()}
+      onContextMenu={(e) => e.preventDefault()}
+    >
       <p className="mb-2 text-sm font-semibold text-[#64748B]">
         Question {index + 1} / {quiz.questions.length}
       </p>

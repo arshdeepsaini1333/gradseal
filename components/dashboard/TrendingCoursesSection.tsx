@@ -4,9 +4,15 @@ import type { Course } from "@/types";
 
 interface TrendingCoursesSectionProps {
   courses: Course[];
+  wishlistedCourseIds?: string[];
 }
 
-export default function TrendingCoursesSection({ courses }: TrendingCoursesSectionProps) {
+export default function TrendingCoursesSection({
+  courses,
+  wishlistedCourseIds = [],
+}: TrendingCoursesSectionProps) {
+  const wishlistedSet = new Set(wishlistedCourseIds);
+
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -29,6 +35,7 @@ export default function TrendingCoursesSection({ courses }: TrendingCoursesSecti
             course={course}
             badge={`🔥 #${index + 1} Trending`}
             footerNote={`${course.purchaseCount.toLocaleString()}+ students enrolled`}
+            wishlisted={wishlistedSet.has(course.id)}
           />
         ))}
       </div>

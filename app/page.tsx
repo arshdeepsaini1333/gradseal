@@ -8,9 +8,15 @@ import CertificatePreview from "@/components/CertificatePreview";
 import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 import { getFeaturedCourses } from "@/lib/courses";
+import { getStudentSession } from "@/lib/auth/session";
+import { getWishlistedCourseIds } from "@/lib/wishlist";
 
 export default async function HomePage() {
-  const featuredCourses = await getFeaturedCourses(8);
+  const student = await getStudentSession();
+  const [featuredCourses, wishlistedCourseIds] = await Promise.all([
+    getFeaturedCourses(8),
+    student ? getWishlistedCourseIds(student.id) : Promise.resolve([]),
+  ]);
 
   return (
     <>
@@ -19,7 +25,12 @@ export default async function HomePage() {
         <Hero />
         <Stats />
         <Features />
-        <FeaturedCourses courses={featuredCourses} viewAllHref="/courses" />
+        <FeaturedCourses
+          courses={featuredCourses}
+          viewAllHref="/courses"
+          isLoggedIn={!!student}
+          wishlistedCourseIds={wishlistedCourseIds}
+        />
         <CertificatePreview />
         <Testimonials />
         <CTA />

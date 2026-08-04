@@ -4,6 +4,7 @@ import type { Course } from "@/types";
 
 interface RecentlyAddedSectionProps {
   courses: Course[];
+  wishlistedCourseIds?: string[];
 }
 
 function formatDate(dateStr: string) {
@@ -14,7 +15,12 @@ function formatDate(dateStr: string) {
   });
 }
 
-export default function RecentlyAddedSection({ courses }: RecentlyAddedSectionProps) {
+export default function RecentlyAddedSection({
+  courses,
+  wishlistedCourseIds = [],
+}: RecentlyAddedSectionProps) {
+  const wishlistedSet = new Set(wishlistedCourseIds);
+
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
@@ -37,6 +43,7 @@ export default function RecentlyAddedSection({ courses }: RecentlyAddedSectionPr
             course={course}
             badge="🆕 New"
             footerNote={`Added ${formatDate(course.createdAt)}`}
+            wishlisted={wishlistedSet.has(course.id)}
           />
         ))}
       </div>

@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth/admin-session";
 import { createUploadUrl } from "@/lib/aws/s3";
 import { slugify } from "@/lib/format";
+import { createCourseAddedNotification } from "@/lib/notifications";
 import {
   courseDraftSchema,
   createCategorySchema,
@@ -104,7 +105,7 @@ export async function createCourse(payload: CourseDraft): Promise<void> {
     Math.ceil(data.lessons.reduce((sum, lesson) => sum + lesson.duration, 0) / 60)
   );
 
-  await prisma.course.create({
+  const course = await prisma.course.create({
     data: {
       title: data.title,
       slug,
@@ -161,6 +162,10 @@ export async function createCourse(payload: CourseDraft): Promise<void> {
       },
     },
   });
+
+  if (data.isPublished) {
+    await createCourseAddedNotification(course.id, course.title);
+  }
 
   revalidatePath("/admin/courses");
   redirect("/admin/courses");

@@ -1,18 +1,32 @@
 import Link from "next/link";
 import { categoryEmojis, difficultyColors } from "@/lib/data";
+import WishlistButton from "@/components/courses/WishlistButton";
 import type { Course } from "@/types";
 
 interface DashboardCourseCardProps {
   course: Course;
   badge?: string;
   footerNote?: string;
+  wishlisted?: boolean;
 }
 
-export default function DashboardCourseCard({ course, badge, footerNote }: DashboardCourseCardProps) {
+export default function DashboardCourseCard({
+  course,
+  badge,
+  footerNote,
+  wishlisted = false,
+}: DashboardCourseCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-shadow overflow-hidden flex flex-col">
       <div className="relative h-32 bg-gradient-to-br from-[#2563EB] to-[#60A5FA] flex items-center justify-center">
         <span className="text-5xl">{categoryEmojis[course.category] ?? "📚"}</span>
+        <WishlistButton
+          courseId={course.id}
+          courseSlug={course.slug}
+          isLoggedIn
+          initialWishlisted={wishlisted}
+          className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
+        />
         {badge && (
           <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-white/90 text-[#2563EB] text-xs font-semibold shadow-sm">
             {badge}

@@ -55,7 +55,11 @@ export default async function LearnLessonPage({
       <main className="min-w-0 flex-1">
         <LessonView key={lessonId} courseSlug={slug} lesson={lessonDetail} />
       </main>
-      <RightRail course={course} lesson={lessonDetail} />
+      <RightRail
+        course={course}
+        lesson={lessonDetail}
+        studentName={`${student.firstName} ${student.lastName}`}
+      />
     </div>
   );
 }
