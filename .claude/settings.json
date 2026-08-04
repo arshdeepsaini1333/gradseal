@@ -132,7 +132,9 @@
       "Bash(mkdir -p \"d:/gradseal/gradseal/prisma/migrations/20260804150000_wishlist\")",
       "Bash(node _tmp-wishlist-test.mjs)",
       "Bash(node _tmp-wishlist-debug.mjs)",
-      "Bash(node _tmp-wishlist-debug2.mjs)"
+      "Bash(node _tmp-wishlist-debug2.mjs)",
+      "Bash(xargs cat)",
+      "Bash(node _tmp-support-test.mjs)"
     ],
     "additionalDirectories": [
       "\\tmp"

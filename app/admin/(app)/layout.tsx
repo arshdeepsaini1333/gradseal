@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/auth/admin-session";
 import AdminShell from "@/components/admin/shell/AdminShell";
 import ThemeProvider from "@/components/admin/shell/ThemeProvider";
+import { getUnreadSupportTicketCount } from "@/lib/support";
 import type { AdminProfile } from "@/types/admin";
 
 function getInitials(fullName: string): string {
@@ -29,9 +30,11 @@ export default async function AdminAppLayout({ children }: { children: ReactNode
     initials: getInitials(session.fullName),
   };
 
+  const unreadNotificationCount = await getUnreadSupportTicketCount();
+
   return (
     <ThemeProvider>
-      <AdminShell admin={admin} defaultCollapsed={defaultCollapsed}>
+      <AdminShell admin={admin} defaultCollapsed={defaultCollapsed} unreadNotificationCount={unreadNotificationCount}>
         {children}
       </AdminShell>
     </ThemeProvider>

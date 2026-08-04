@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Search, Bell, MessageSquare, Plus } from "lucide-react";
 import AdminMobileNav from "./AdminMobileNav";
 import AdminProfileDropdown from "./AdminProfileDropdown";
@@ -8,7 +9,13 @@ import { Input } from "@/components/admin/ui/input";
 import { Button } from "@/components/admin/ui/button";
 import type { AdminProfile } from "@/types/admin";
 
-export default function AdminTopbar({ admin }: { admin: AdminProfile }) {
+export default function AdminTopbar({
+  admin,
+  unreadNotificationCount,
+}: {
+  admin: AdminProfile;
+  unreadNotificationCount: number;
+}) {
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-card px-4 md:px-6">
       <AdminMobileNav />
@@ -31,9 +38,13 @@ export default function AdminTopbar({ admin }: { admin: AdminProfile }) {
         <Button variant="ghost" size="icon" aria-label="Messages">
           <MessageSquare className="size-4" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
-          <Bell className="size-4" />
-          <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-destructive" />
+        <Button variant="ghost" size="icon" aria-label="Notifications" className="relative" asChild>
+          <Link href="/admin/notifications">
+            <Bell className="size-4" />
+            {unreadNotificationCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-destructive" />
+            )}
+          </Link>
         </Button>
         <ThemeToggle />
         <div className="ml-1 hidden h-6 w-px bg-border sm:block" />

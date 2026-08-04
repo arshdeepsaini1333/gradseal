@@ -10,10 +10,12 @@ const COLLAPSE_COOKIE = "admin_sidebar_collapsed";
 export default function AdminShell({
   admin,
   defaultCollapsed,
+  unreadNotificationCount,
   children,
 }: {
   admin: AdminProfile;
   defaultCollapsed: boolean;
+  unreadNotificationCount: number;
   children: ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
@@ -28,7 +30,7 @@ export default function AdminShell({
     <div className="admin-shell min-h-screen bg-background text-foreground">
       <AdminSidebar collapsed={collapsed} onToggle={toggle} />
       <div className={collapsed ? "md:pl-16" : "md:pl-64"}>
-        <AdminTopbar admin={admin} />
+        <AdminTopbar admin={admin} unreadNotificationCount={unreadNotificationCount} />
         <main className="p-4 md:p-6">{children}</main>
       </div>
     </div>

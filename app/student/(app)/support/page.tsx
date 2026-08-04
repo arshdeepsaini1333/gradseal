@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { LifeBuoy, Mail, MessageCircle, Phone } from "lucide-react";
-import SectionCard from "@/components/ui/SectionCard";
-import Input from "@/components/ui/Input";
-import Textarea from "@/components/ui/Textarea";
-import Button from "@/components/ui/Button";
+import SupportRequestForm from "@/components/support/SupportRequestForm";
 
 export const metadata: Metadata = { title: "Support – GradSeal" };
 
@@ -84,16 +81,7 @@ export default function SupportPage() {
         </div>
       </section>
 
-      <SectionCard icon={Mail} title="Contact Support" description="Can't find an answer? Send us a message.">
-        <Input label="Subject" name="subject" required />
-        <Input label="Order ID (optional)" name="orderId" />
-        <div className="sm:col-span-2">
-          <Textarea label="Message" name="message" rows={5} required />
-        </div>
-        <div className="sm:col-span-2 flex justify-end">
-          <Button variant="primary">Send Message</Button>
-        </div>
-      </SectionCard>
+      <SupportRequestForm />
     </div>
   );
 }
